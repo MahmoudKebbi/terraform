@@ -15,7 +15,7 @@ jobs:
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
 
     - name: Setup Terraform
       uses: hashicorp/setup-terraform@v2
@@ -35,7 +35,7 @@ jobs:
       run: terraform plan -out=plan.tfplan
 
     - name: Upload Plan
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: terraform-plan
         path: plan.tfplan
