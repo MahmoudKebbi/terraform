@@ -269,7 +269,7 @@ resource "aws_api_gateway_method" "create_user" {
   authorizer_id = aws_api_gateway_authorizer.cognito_authorizer.id
 
   request_models = {
-    "application/json" = aws_api_gateway_model.create_user_request.id
+    "application/json" = aws_api_gateway_model.create_user_request.name
   }
   depends_on = [aws_api_gateway_model.create_user_request]
 }
@@ -301,7 +301,7 @@ resource "aws_api_gateway_method_response" "create_user_400" {
   status_code = "400"
 
   response_models = {
-    "application/json" = aws_api_gateway_model.error_response.id
+    "application/json" = aws_api_gateway_model.error_response.name
   }
 
   response_parameters = {
@@ -316,7 +316,7 @@ resource "aws_api_gateway_method_response" "create_user_500" {
   status_code = "500"
 
   response_models = {
-    "application/json" = aws_api_gateway_model.error_response.id
+    "application/json" = aws_api_gateway_model.error_response.name
   }
 
   response_parameters = {
@@ -372,7 +372,7 @@ resource "aws_api_gateway_method" "get_user" {
   }
 
   request_models = {
-    "application/json" = aws_api_gateway_model.get_user_request.id
+    "application/json" = aws_api_gateway_model.get_user_request.name
   }
   depends_on = [aws_api_gateway_model.get_user_request]
 }
@@ -404,7 +404,7 @@ resource "aws_api_gateway_method_response" "get_user_400" {
   status_code = "400"
 
   response_models = {
-    "application/json" = aws_api_gateway_model.error_response.id
+    "application/json" = aws_api_gateway_model.error_response.name
   }
 
   response_parameters = {
@@ -419,7 +419,7 @@ resource "aws_api_gateway_method_response" "get_user_500" {
   status_code = "500"
 
   response_models = {
-    "application/json" = aws_api_gateway_model.error_response.id
+    "application/json" = aws_api_gateway_model.error_response.name
   }
 
   response_parameters = {
@@ -475,7 +475,7 @@ resource "aws_api_gateway_method" "update_user" {
   }
 
   request_models = {
-    "application/json" = aws_api_gateway_model.update_user_request.id
+    "application/json" = aws_api_gateway_model.update_user_request.name
   }
   depends_on = [aws_api_gateway_model.update_user_request]
 }
@@ -507,7 +507,7 @@ resource "aws_api_gateway_method_response" "update_user_400" {
   status_code = "400"
 
   response_models = {
-    "application/json" = aws_api_gateway_model.error_response.id
+    "application/json" = aws_api_gateway_model.error_response.name
   }
 
   response_parameters = {
@@ -522,7 +522,7 @@ resource "aws_api_gateway_method_response" "update_user_500" {
   status_code = "500"
 
   response_models = {
-    "application/json" = aws_api_gateway_model.error_response.id
+    "application/json" = aws_api_gateway_model.error_response.name
   }
 
   response_parameters = {
@@ -578,7 +578,7 @@ resource "aws_api_gateway_method" "delete_user" {
   }
 
   request_models = {
-    "application/json" = aws_api_gateway_model.delete_user_request.id
+    "application/json" = aws_api_gateway_model.delete_user_request.name
   }
   depends_on = [aws_api_gateway_model.delete_user_request]
 }
@@ -610,7 +610,7 @@ resource "aws_api_gateway_method_response" "delete_user_400" {
   status_code = "400"
 
   response_models = {
-    "application/json" = aws_api_gateway_model.error_response.id
+    "application/json" = aws_api_gateway_model.error_response.name
   }
 
   response_parameters = {
@@ -625,7 +625,7 @@ resource "aws_api_gateway_method_response" "delete_user_500" {
   status_code = "500"
 
   response_models = {
-    "application/json" = aws_api_gateway_model.error_response.id
+    "application/json" = aws_api_gateway_model.error_response.name
   }
 
   response_parameters = {
