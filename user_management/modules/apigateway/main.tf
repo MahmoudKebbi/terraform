@@ -290,7 +290,7 @@ resource "aws_api_gateway_method_response" "create_user_200" {
   status_code = "200"
 
   response_models = {
-    "application/json" = aws_api_gateway_model.user_response.id
+    "application/json" = aws_api_gateway_model.user_response.name
   }
 }
 
@@ -325,35 +325,29 @@ resource "aws_api_gateway_method_response" "create_user_500" {
 }
 
 resource "aws_api_gateway_integration_response" "create_user_200" {
-  rest_api_id = aws_api_gateway_rest_api.this.id
-  resource_id = aws_api_gateway_resource.users.id
+  depends_on = [aws_api_gateway_integration.create_user]
   http_method = aws_api_gateway_method.create_user.http_method
   status_code = "200"
-
   response_templates = {
-    "application/json" = ""
+    "application/json" = "{\"message\": \"User created successfully\", \"code\": \"200\"}"
   }
 }
 
 resource "aws_api_gateway_integration_response" "create_user_400" {
-  rest_api_id = aws_api_gateway_rest_api.this.id
-  resource_id = aws_api_gateway_resource.users.id
+  depends_on = [aws_api_gateway_integration.create_user]
   http_method = aws_api_gateway_method.create_user.http_method
   status_code = "400"
   selection_pattern = ".*\\[BadRequest\\].*"
-
   response_templates = {
     "application/json" = "{\"message\": \"Bad Request\", \"code\": \"400\"}"
   }
 }
 
 resource "aws_api_gateway_integration_response" "create_user_500" {
-  rest_api_id = aws_api_gateway_rest_api.this.id
-  resource_id = aws_api_gateway_resource.users.id
+  depends_on = [aws_api_gateway_integration.create_user]
   http_method = aws_api_gateway_method.create_user.http_method
   status_code = "500"
   selection_pattern = ".*\\[InternalServerError\\].*"
-
   response_templates = {
     "application/json" = "{\"message\": \"Internal Server Error\", \"code\": \"500\"}"
   }
@@ -393,7 +387,7 @@ resource "aws_api_gateway_method_response" "get_user_200" {
   status_code = "200"
 
   response_models = {
-    "application/json" = aws_api_gateway_model.user_response.id
+    "application/json" = aws_api_gateway_model.user_response.name
   }
 }
 
@@ -428,35 +422,29 @@ resource "aws_api_gateway_method_response" "get_user_500" {
 }
 
 resource "aws_api_gateway_integration_response" "get_user_200" {
-  rest_api_id = aws_api_gateway_rest_api.this.id
-  resource_id = aws_api_gateway_resource.user.id
+  depends_on = [aws_api_gateway_integration.get_user]
   http_method = aws_api_gateway_method.get_user.http_method
   status_code = "200"
-
   response_templates = {
-    "application/json" = ""
+    "application/json" = "{\"message\": \"User retrieved successfully\", \"code\": \"200\"}"
   }
 }
 
 resource "aws_api_gateway_integration_response" "get_user_400" {
-  rest_api_id = aws_api_gateway_rest_api.this.id
-  resource_id = aws_api_gateway_resource.user.id
+  depends_on = [aws_api_gateway_integration.get_user]
   http_method = aws_api_gateway_method.get_user.http_method
   status_code = "400"
   selection_pattern = ".*\\[BadRequest\\].*"
-
   response_templates = {
     "application/json" = "{\"message\": \"Bad Request\", \"code\": \"400\"}"
   }
 }
 
 resource "aws_api_gateway_integration_response" "get_user_500" {
-  rest_api_id = aws_api_gateway_rest_api.this.id
-  resource_id = aws_api_gateway_resource.user.id
+  depends_on = [aws_api_gateway_integration.get_user]
   http_method = aws_api_gateway_method.get_user.http_method
   status_code = "500"
   selection_pattern = ".*\\[InternalServerError\\].*"
-
   response_templates = {
     "application/json" = "{\"message\": \"Internal Server Error\", \"code\": \"500\"}"
   }
@@ -496,7 +484,7 @@ resource "aws_api_gateway_method_response" "update_user_200" {
   status_code = "200"
 
   response_models = {
-    "application/json" = aws_api_gateway_model.user_response.id
+    "application/json" = aws_api_gateway_model.user_response.name
   }
 }
 
@@ -531,35 +519,29 @@ resource "aws_api_gateway_method_response" "update_user_500" {
 }
 
 resource "aws_api_gateway_integration_response" "update_user_200" {
-  rest_api_id = aws_api_gateway_rest_api.this.id
-  resource_id = aws_api_gateway_resource.user.id
+  depends_on = [aws_api_gateway_integration.update_user]
   http_method = aws_api_gateway_method.update_user.http_method
   status_code = "200"
-
   response_templates = {
-    "application/json" = ""
+    "application/json" = "{\"message\": \"User updated successfully\", \"code\": \"200\"}"
   }
 }
 
 resource "aws_api_gateway_integration_response" "update_user_400" {
-  rest_api_id = aws_api_gateway_rest_api.this.id
-  resource_id = aws_api_gateway_resource.user.id
+  depends_on = [aws_api_gateway_integration.update_user]
   http_method = aws_api_gateway_method.update_user.http_method
   status_code = "400"
   selection_pattern = ".*\\[BadRequest\\].*"
-
   response_templates = {
     "application/json" = "{\"message\": \"Bad Request\", \"code\": \"400\"}"
   }
 }
 
 resource "aws_api_gateway_integration_response" "update_user_500" {
-  rest_api_id = aws_api_gateway_rest_api.this.id
-  resource_id = aws_api_gateway_resource.user.id
+  depends_on = [aws_api_gateway_integration.update_user]
   http_method = aws_api_gateway_method.update_user.http_method
   status_code = "500"
   selection_pattern = ".*\\[InternalServerError\\].*"
-
   response_templates = {
     "application/json" = "{\"message\": \"Internal Server Error\", \"code\": \"500\"}"
   }
@@ -599,7 +581,7 @@ resource "aws_api_gateway_method_response" "delete_user_200" {
   status_code = "200"
 
   response_models = {
-    "application/json" = aws_api_gateway_model.user_response.id
+    "application/json" = aws_api_gateway_model.user_response.name
   }
 }
 
@@ -634,35 +616,29 @@ resource "aws_api_gateway_method_response" "delete_user_500" {
 }
 
 resource "aws_api_gateway_integration_response" "delete_user_200" {
-  rest_api_id = aws_api_gateway_rest_api.this.id
-  resource_id = aws_api_gateway_resource.user.id
+  depends_on = [aws_api_gateway_integration.delete_user]
   http_method = aws_api_gateway_method.delete_user.http_method
   status_code = "200"
-
   response_templates = {
-    "application/json" = ""
+    "application/json" = "{\"message\": \"User deleted successfully\", \"code\": \"200\"}"
   }
 }
 
 resource "aws_api_gateway_integration_response" "delete_user_400" {
-  rest_api_id = aws_api_gateway_rest_api.this.id
-  resource_id = aws_api_gateway_resource.user.id
+  depends_on = [aws_api_gateway_integration.delete_user]
   http_method = aws_api_gateway_method.delete_user.http_method
   status_code = "400"
   selection_pattern = ".*\\[BadRequest\\].*"
-
   response_templates = {
     "application/json" = "{\"message\": \"Bad Request\", \"code\": \"400\"}"
   }
 }
 
 resource "aws_api_gateway_integration_response" "delete_user_500" {
-  rest_api_id = aws_api_gateway_rest_api.this.id
-  resource_id = aws_api_gateway_resource.user.id
+  depends_on = [aws_api_gateway_integration.delete_user]
   http_method = aws_api_gateway_method.delete_user.http_method
   status_code = "500"
   selection_pattern = ".*\\[InternalServerError\\].*"
-
   response_templates = {
     "application/json" = "{\"message\": \"Internal Server Error\", \"code\": \"500\"}"
   }
@@ -694,16 +670,4 @@ resource "aws_api_gateway_deployment" "this" {
 
   rest_api_id = aws_api_gateway_rest_api.this.id
   stage_name  = "dev"
-}
-
-# Create API Gateway Stage
-resource "aws_api_gateway_stage" "dev" {
-  deployment_id = aws_api_gateway_deployment.this.id
-  rest_api_id   = aws_api_gateway_rest_api.this.id
-  stage_name    = "dev"
-  
-  access_log_settings {
-    destination_arn = aws_cloudwatch_log_group.api_gw_logs.arn
-    format          = "$context.identity.sourceIp - $context.identity.caller [$context.requestTime] \"$context.httpMethod $context.resourcePath $context.protocol\" $context.status $context.responseLength $context.requestId"
-  }
 }
