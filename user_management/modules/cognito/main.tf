@@ -45,3 +45,8 @@ resource "aws_cognito_user_group" "users" {
   description  = "Regular users group"
   precedence   = 2
 }
+
+resource "aws_cognito_user_pool_domain" "main" {
+  domain       = "equiluxenergy"
+  user_pool_id = aws_cognito_user_pool.this.id
+}
