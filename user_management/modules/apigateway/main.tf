@@ -271,6 +271,7 @@ resource "aws_api_gateway_method" "create_user" {
   request_models = {
     "application/json" = aws_api_gateway_model.create_user_request.id
   }
+  depends_on = [aws_api_gateway_model.create_user_request]
 }
 
 resource "aws_api_gateway_integration" "create_user" {
@@ -373,6 +374,7 @@ resource "aws_api_gateway_method" "get_user" {
   request_models = {
     "application/json" = aws_api_gateway_model.get_user_request.id
   }
+  depends_on = [aws_api_gateway_model.get_user_request]
 }
 
 resource "aws_api_gateway_integration" "get_user" {
@@ -475,6 +477,7 @@ resource "aws_api_gateway_method" "update_user" {
   request_models = {
     "application/json" = aws_api_gateway_model.update_user_request.id
   }
+  depends_on = [aws_api_gateway_model.update_user_request]
 }
 
 resource "aws_api_gateway_integration" "update_user" {
@@ -577,6 +580,7 @@ resource "aws_api_gateway_method" "delete_user" {
   request_models = {
     "application/json" = aws_api_gateway_model.delete_user_request.id
   }
+  depends_on = [aws_api_gateway_model.delete_user_request]
 }
 
 resource "aws_api_gateway_integration" "delete_user" {
