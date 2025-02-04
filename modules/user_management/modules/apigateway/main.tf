@@ -50,7 +50,7 @@ resource "aws_api_gateway_resource" "admin_users" {
 
 resource "aws_api_gateway_resource" "admin_user" {
   rest_api_id = aws_api_gateway_rest_api.this.id
-  parent_id   = aws_api_gateway_resource.admin.id
+  parent_id   = aws_api_gateway_resource.admin_users.id
   path_part   = "{username}"
 }
 
@@ -918,6 +918,217 @@ resource "aws_api_gateway_integration_response" "grant_admin_500" {
   }
 }
 
+# Revoke Admin Role Method
+resource "aws_api_gateway_method" "revoke_admin" {
+  rest_api_id   = aws_api_gateway_rest_api.this.id
+  resource_id   = aws_api_gateway_resource.grant_admin.id
+  http_method   = "DELETE"
+  authorization = "COGNITO_USER_POOLS"
+  authorizer_id = aws_api_gateway_authorizer.cognito_authorizer.id
+
+  request_models = {
+    "application/json" = ""
+  }
+  request_parameters = {
+    "method.request.header.Authorization" = true,
+    "method.request.path.username" = true
+  }
+}
+
+resource "aws_api_gateway_integration" "revoke_admin" {
+  rest_api_id = aws_api_gateway_rest_api.this.id
+  resource_id = aws_api_gateway_resource.grant_admin.id
+  http_method = aws_api_gateway_method.revoke_admin.http_method
+  type        = "AWS"
+  integration_http_method = "POST"
+  uri         = "arn:aws:apigateway:${var.region}:lambda:path/2015-03-31/functions/${var.user_management_lambda_functions.revoke_admin}/invocations"
+}
+
+resource "aws_api_gateway_method_response" "revoke_admin_200" {
+  rest_api_id = aws_api_gateway_rest_api.this.id
+  resource_id = aws_api_gateway_resource.grant_admin.id
+  http_method = aws_api_gateway_method.revoke_admin.http_method
+  status_code = "200"
+
+  response_models = {
+    "application/json" = aws_api_gateway_model.user_response.name
+  }
+}
+
+resource "aws_api_gateway_method_response" "revoke_admin_400" {
+  rest_api_id = aws_api_gateway_rest_api.this.id
+  resource_id = aws_api_gateway_resource.grant_admin.id
+  http_method = aws_api_gateway_method.revoke_admin.http_method
+  status_code = "400"
+
+  response_models = {
+    "application/json" = aws_api_gateway_model.error_response.name
+  }
+
+  response_parameters = {
+    "method.response.header.Content-Type" = true
+  }
+}
+
+resource "aws_api_gateway_method_response" "revoke_admin_500" {
+  rest_api_id = aws_api_gateway_rest_api.this.id
+  resource_id = aws_api_gateway_resource.grant_admin.id
+  http_method = aws_api_gateway_method.revoke_admin.http_method
+  status_code = "500"
+
+  response_models = {
+    "application/json" = aws_api_gateway_model.error_response.name
+  }
+
+  response_parameters = {
+    "method.response.header.Content-Type" = true
+  }
+}
+
+resource "aws_api_gateway_integration_response" "revoke_admin_200" {
+  depends_on = [aws_api_gateway_integration.revoke_admin]
+  rest_api_id = aws_api_gateway_rest_api.this.id
+  resource_id = aws_api_gateway_resource.grant_admin.id
+  http_method = aws_api_gateway_method.revoke_admin.http_method
+  status_code = "200"
+
+  response_templates = {
+    "application/json" = ""
+  }
+}
+
+resource "aws_api_gateway_integration_response" "revoke_admin_400" {
+  depends_on = [aws_api_gateway_integration.revoke_admin]
+  rest_api_id = aws_api_gateway_rest_api.this.id
+  resource_id = aws_api_gateway_resource.grant_admin.id
+  http_method = aws_api_gateway_method.revoke_admin.http_method
+  status_code = "400"
+  selection_pattern = ".*\\[BadRequest\\].*"
+
+  response_templates = {
+    "application/json" = "{\"message\": \"Bad Request\", \"code\": \"400\"}"
+  }
+}
+
+resource "aws_api_gateway_integration_response" "revoke_admin_500" {
+  depends_on = [aws_api_gateway_integration.revoke_admin]
+  rest_api_id = aws_api_gateway_rest_api.this.id
+  resource_id = aws_api_gateway_resource.grant_admin.id
+  http_method = aws_api_gateway_method.revoke_admin.http_method
+  status_code = "500"
+  selection_pattern = ".*\\[InternalServerError\\].*"
+
+  response_templates = {
+    "application/json" = "{\"message\": \"Internal Server Error\", \"code\": \"500\"}"
+  }
+}
+
+# Admin Get User Method
+resource "aws_api_gateway_method" "admin_get_user" {
+  rest_api_id   = aws_api_gateway_rest_api.this.id
+  resource_id   = aws_api_gateway_resource.admin_user.id
+  http_method   = "GET"
+  authorization = "COGNITO_USER_POOLS"
+  authorizer_id = aws_api_gateway_authorizer.cognito_authorizer.id
+
+  request_parameters = {
+    "method.request.header.Authorization" = true,
+    "method.request.path.username" = true
+  }
+
+  request_models = {
+    "application/json" = ""
+  }
+}
+
+resource "aws_api_gateway_integration" "admin_get_user" {
+  rest_api_id = aws_api_gateway_rest_api.this.id
+  resource_id = aws_api_gateway_resource.admin_user.id
+  http_method = aws_api_gateway_method.admin_get_user.http_method
+  type        = "AWS"
+  integration_http_method = "POST"
+  uri         = "arn:aws:apigateway:${var.region}:lambda:path/2015-03-31/functions/${var.user_management_lambda_functions.admin_get_user}/invocations"
+}
+
+resource "aws_api_gateway_method_response" "admin_get_user_200" {
+  rest_api_id = aws_api_gateway_rest_api.this.id
+  resource_id = aws_api_gateway_resource.admin_user.id
+  http_method = aws_api_gateway_method.admin_get_user.http_method
+  status_code = "200"
+
+  response_models = {
+    "application/json" = aws_api_gateway_model.user_response.name
+  }
+}
+
+resource "aws_api_gateway_method_response" "admin_get_user_400" {
+  rest_api_id = aws_api_gateway_rest_api.this.id
+  resource_id = aws_api_gateway_resource.admin_user.id
+  http_method = aws_api_gateway_method.admin_get_user.http_method
+  status_code = "400"
+
+  response_models = {
+    "application/json" = aws_api_gateway_model.error_response.name
+  }
+
+  response_parameters = {
+    "method.response.header.Content-Type" = true
+  }
+}
+
+resource "aws_api_gateway_method_response" "admin_get_user_500" {
+  rest_api_id = aws_api_gateway_rest_api.this.id
+  resource_id = aws_api_gateway_resource.admin_user.id
+  http_method = aws_api_gateway_method.admin_get_user.http_method
+  status_code = "500"
+
+  response_models = {
+    "application/json" = aws_api_gateway_model.error_response.name
+  }
+
+  response_parameters = {
+    "method.response.header.Content-Type" = true
+  }
+}
+
+resource "aws_api_gateway_integration_response" "admin_get_user_200" {
+  depends_on = [aws_api_gateway_integration.admin_get_user]
+  rest_api_id = aws_api_gateway_rest_api.this.id
+  resource_id = aws_api_gateway_resource.admin_user.id
+  http_method = aws_api_gateway_method.admin_get_user.http_method
+  status_code = "200"
+
+  response_templates = {
+    "application/json" = ""
+  }
+}
+
+resource "aws_api_gateway_integration_response" "admin_get_user_400" {
+  depends_on = [aws_api_gateway_integration.admin_get_user]
+  rest_api_id = aws_api_gateway_rest_api.this.id
+  resource_id = aws_api_gateway_resource.admin_user.id
+  http_method = aws_api_gateway_method.admin_get_user.http_method
+  status_code = "400"
+  selection_pattern = ".*\\[BadRequest\\].*"
+
+  response_templates = {
+    "application/json" = "{\"message\": \"Bad Request\", \"code\": \"400\"}"
+  }
+}
+
+resource "aws_api_gateway_integration_response" "admin_get_user_500" {
+  depends_on = [aws_api_gateway_integration.admin_get_user]
+  rest_api_id = aws_api_gateway_rest_api.this.id
+  resource_id = aws_api_gateway_resource.admin_user.id
+  http_method = aws_api_gateway_method.admin_get_user.http_method
+  status_code = "500"
+  selection_pattern = ".*\\[InternalServerError\\].*"
+
+  response_templates = {
+    "application/json" = "{\"message\": \"Internal Server Error\", \"code\": \"500\"}"
+  }
+}
+
 resource "aws_api_gateway_method" "admin_update_user" {
   rest_api_id   = aws_api_gateway_rest_api.this.id
   resource_id   = aws_api_gateway_resource.admin_user.id
@@ -1025,9 +1236,113 @@ resource "aws_api_gateway_integration_response" "admin_update_user_500" {
   }
 }
 
+# Admin Delete User Method
+resource "aws_api_gateway_method" "admin_delete_user" {
+  rest_api_id   = aws_api_gateway_rest_api.this.id
+  resource_id   = aws_api_gateway_resource.admin_user.id
+  http_method   = "DELETE"
+  authorization = "COGNITO_USER_POOLS"
+  authorizer_id = aws_api_gateway_authorizer.cognito_authorizer.id
 
+  request_parameters = {
+    "method.request.header.Authorization" = true,
+    "method.request.path.username" = true
+  }
 
+  request_models = {
+    "application/json" = ""
+  }
+}
 
+resource "aws_api_gateway_integration" "admin_delete_user" {
+  rest_api_id = aws_api_gateway_rest_api.this.id
+  resource_id = aws_api_gateway_resource.admin_user.id
+  http_method = aws_api_gateway_method.admin_delete_user.http_method
+  type        = "AWS"
+  integration_http_method = "POST"
+  uri         = "arn:aws:apigateway:${var.region}:lambda:path/2015-03-31/functions/${var.user_management_lambda_functions.admin_delete_user}/invocations"
+}
+
+resource "aws_api_gateway_method_response" "admin_delete_user_200" {
+  rest_api_id = aws_api_gateway_rest_api.this.id
+  resource_id = aws_api_gateway_resource.admin_user.id
+  http_method = aws_api_gateway_method.admin_delete_user.http_method
+  status_code = "200"
+
+  response_models = {
+    "application/json" = aws_api_gateway_model.user_response.name
+  }
+}
+
+resource "aws_api_gateway_method_response" "admin_delete_user_400" {
+  rest_api_id = aws_api_gateway_rest_api.this.id
+  resource_id = aws_api_gateway_resource.admin_user.id
+  http_method = aws_api_gateway_method.admin_delete_user.http_method
+  status_code = "400"
+
+  response_models = {
+    "application/json" = aws_api_gateway_model.error_response.name
+  }
+
+  response_parameters = {
+    "method.response.header.Content-Type" = true
+  }
+}
+
+resource "aws_api_gateway_method_response" "admin_delete_user_500" {
+  rest_api_id = aws_api_gateway_rest_api.this.id
+  resource_id = aws_api_gateway_resource.admin_user.id
+  http_method = aws_api_gateway_method.admin_delete_user.http_method
+  status_code = "500"
+
+  response_models = {
+    "application/json" = aws_api_gateway_model.error_response.name
+  }
+
+  response_parameters = {
+    "method.response.header.Content-Type" = true
+  }
+}
+
+resource "aws_api_gateway_integration_response" "admin_delete_user_200" {
+  depends_on = [aws_api_gateway_integration.admin_delete_user]
+  rest_api_id = aws_api_gateway_rest_api.this.id
+  resource_id = aws_api_gateway_resource.admin_user.id
+  http_method = aws_api_gateway_method.admin_delete_user.http_method
+  status_code = "200"
+
+  response_templates = {
+    "application/json" = ""
+  }
+}
+
+resource "aws_api_gateway_integration_response" "admin_delete_user_400" {
+  depends_on = [aws_api_gateway_integration.admin_delete_user]
+  rest_api_id = aws_api_gateway_rest_api.this.id
+  resource_id = aws_api_gateway_resource.admin_user.id
+  http_method = aws_api_gateway_method.admin_delete_user.http_method
+  status_code = "400"
+  selection_pattern = ".*\\[BadRequest\\].*"
+
+  response_templates = {
+    "application/json" = "{\"message\": \"Bad Request\", \"code\": \"400\"}"
+  }
+}
+
+resource "aws_api_gateway_integration_response" "admin_delete_user_500" {
+  depends_on = [aws_api_gateway_integration.admin_delete_user]
+  rest_api_id = aws_api_gateway_rest_api.this.id
+  resource_id = aws_api_gateway_resource.admin_user.id
+  http_method = aws_api_gateway_method.admin_delete_user.http_method
+  status_code = "500"
+  selection_pattern = ".*\\[InternalServerError\\].*"
+
+  response_templates = {
+    "application/json" = "{\"message\": \"Internal Server Error\", \"code\": \"500\"}"
+  }
+}
+
+#Setup authorizer for API Gateway
 resource "aws_api_gateway_authorizer" "cognito_authorizer" {
   name             = "CognitoAuthorizer"
   rest_api_id      = aws_api_gateway_rest_api.this.id
