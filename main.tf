@@ -13,6 +13,4 @@ provider "aws" {
 
 module "user_managment"{
 source="./modules/user_management"
-region="eu-west-1"
-
 }
