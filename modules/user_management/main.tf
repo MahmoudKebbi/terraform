@@ -84,16 +84,20 @@ module "apigateway" {
   source = "./modules/apigateway"
 
   user_management_lambda_functions = {
-    create_user = module.lambda.create_user_arn
-    get_user    = module.lambda.get_user_arn
-    update_user = module.lambda.update_user_arn
-    delete_user = module.lambda.delete_user_arn
-    
+    create_user       = module.lambda.create_user_arn
+    get_user          = module.lambda.get_user_arn
+    update_user       = module.lambda.update_user_arn
+    delete_user       = module.lambda.delete_user_arn
+    list_all_users    = module.lambda.list_all_users_arn
+    grant_admin       = module.lambda.assign_admin_role_arn
+    revoke_admin      = module.lambda.revoke_admin_role_arn
+    admin_get_user    = module.lambda.admin_get_user_arn
+    admin_update_user = module.lambda.admin_update_user_arn
+    admin_delete_user = module.lambda.admin_delete_user_arn
   }
   region = "eu-west-1"
   cognito_user_pool_arn = module.cognito.user_pool_arn
 }
-
 # module "waf" {
 #   source      = "./modules/waf"
 #   name        = "UserManagementAPI-WAF"
