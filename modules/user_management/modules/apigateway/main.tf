@@ -32,14 +32,14 @@ resource "aws_api_gateway_resource" "user" {
 
 resource "aws_api_gateway_resource" "admin" {
   rest_api_id = aws_api_gateway_rest_api.this.id
-  parent_id   = aws_api_gateway_rest_api.this.root_resource_id
+  parent_id   = aws_api_gateway_resource.v1.id
   path_part   = "admin"
 }
 
 resource "aws_api_gateway_resource" "grant_admin" {
   rest_api_id = aws_api_gateway_rest_api.this.id
   parent_id   = aws_api_gateway_resource.admin.id
-  path_part   = "grant_admin"
+  path_part   = "grant_admin_role"
 }
 
 resource "aws_api_gateway_resource" "admin_users" {
@@ -403,9 +403,7 @@ resource "aws_api_gateway_method" "get_user" {
     "method.request.path.username" = true
   }
 
-  request_models = {
-    "application/json" = ""
-  }
+
 }
 
 resource "aws_api_gateway_integration" "get_user" {
@@ -615,9 +613,7 @@ resource "aws_api_gateway_method" "delete_user" {
     "method.request.header.Authorization" = true,
     "method.request.path.username" = true
   }
-  request_models = {
-    "application/json" = ""
-  }
+
 }
 
 resource "aws_api_gateway_integration" "delete_user" {
@@ -821,9 +817,7 @@ resource "aws_api_gateway_method" "grant_admin" {
   authorization = "COGNITO_USER_POOLS"
   authorizer_id = aws_api_gateway_authorizer.cognito_authorizer.id
 
-  request_models = {
-    "application/json" = ""
-  }
+
   request_parameters = {
     "method.request.header.Authorization" = true
     "method.request.path.username" = true
@@ -926,9 +920,7 @@ resource "aws_api_gateway_method" "revoke_admin" {
   authorization = "COGNITO_USER_POOLS"
   authorizer_id = aws_api_gateway_authorizer.cognito_authorizer.id
 
-  request_models = {
-    "application/json" = ""
-  }
+
   request_parameters = {
     "method.request.header.Authorization" = true,
     "method.request.path.username" = true
@@ -1036,9 +1028,7 @@ resource "aws_api_gateway_method" "admin_get_user" {
     "method.request.path.username" = true
   }
 
-  request_models = {
-    "application/json" = ""
-  }
+
 }
 
 resource "aws_api_gateway_integration" "admin_get_user" {
@@ -1249,9 +1239,7 @@ resource "aws_api_gateway_method" "admin_delete_user" {
     "method.request.path.username" = true
   }
 
-  request_models = {
-    "application/json" = ""
-  }
+
 }
 
 resource "aws_api_gateway_integration" "admin_delete_user" {
