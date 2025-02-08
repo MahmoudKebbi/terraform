@@ -98,6 +98,18 @@ module "apigateway" {
   region = "eu-west-1"
   cognito_user_pool_arn = module.cognito.user_pool_arn
 }
+
+resource "null_resource" "update_user_pool" {
+  depends_on = [module.cognito, module.lambda]
+
+  provisioner "local-exec" {
+    command = <<EOT
+      aws cognito-idp update-user-pool --user-pool-id ${module.cognito.user_pool_id} --lambda-config PostConfirmation=${module.lambda.post_confirmation_arn} --auto-verified-attributes email
+    EOT
+  }
+}
+
+
 # module "waf" {
 #   source      = "./modules/waf"
 #   name        = "UserManagementAPI-WAF"

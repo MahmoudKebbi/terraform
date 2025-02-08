@@ -5,10 +5,12 @@ const tableName = process.env.TABLE_NAME;
 const userPoolId = process.env.USER_POOL_ID;
 
 exports.handler = async (event) => {
+  console.log("Received event:", JSON.stringify(event, null, 2));
+
   const userAttributes = event.request.userAttributes;
   const userId = userAttributes.sub; // Use the UUID from the user attributes
   const email = userAttributes.email;
-  const username = userAttributes.username;
+  const username = event.userName; // Use the userName from the event
 
   const params = {
     TableName: tableName,
@@ -29,7 +31,7 @@ exports.handler = async (event) => {
         GroupName: "Users",
       })
       .promise();
-    return event;
+    return { message: "User confirmed successfully" };
   } catch (error) {
     console.error(error);
     throw new Error("Error saving user to DynamoDB");
