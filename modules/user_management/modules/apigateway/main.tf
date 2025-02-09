@@ -307,7 +307,9 @@ resource "aws_api_gateway_integration" "create_user" {
   http_method = aws_api_gateway_method.create_user.http_method
   type        = "AWS"
   integration_http_method = "POST"
+  credentials = var.api_gateway_user_role_arn
   uri         = "arn:aws:apigateway:${var.region}:lambda:path/2015-03-31/functions/${var.user_management_lambda_functions.create_user}/invocations"
+  passthrough_behavior    = "WHEN_NO_TEMPLATES"
 }
 
 resource "aws_api_gateway_method_response" "create_user_200" {
@@ -370,7 +372,7 @@ resource "aws_api_gateway_integration_response" "create_user_400" {
   resource_id = aws_api_gateway_resource.users.id
   http_method = aws_api_gateway_method.create_user.http_method
   status_code = "400"
-  selection_pattern = ".*\\[BadRequest\\].*"
+  selection_pattern = ".*\"statusCode\":500.*"
 
   response_templates = {
     "application/json" = "{\"message\": \"Bad Request\", \"code\": \"400\"}"
@@ -383,7 +385,7 @@ resource "aws_api_gateway_integration_response" "create_user_500" {
   resource_id = aws_api_gateway_resource.users.id
   http_method = aws_api_gateway_method.create_user.http_method
   status_code = "500"
-  selection_pattern = ".*\\[InternalServerError\\].*"
+  selection_pattern = ".*\"statusCode\":500.*"
 
   response_templates = {
     "application/json" = "{\"message\": \"Internal Server Error\", \"code\": \"500\"}"
@@ -412,7 +414,9 @@ resource "aws_api_gateway_integration" "get_user" {
   http_method = aws_api_gateway_method.get_user.http_method
   type        = "AWS"
   integration_http_method = "POST"
+  credentials = var.api_gateway_user_role_arn
   uri         = "arn:aws:apigateway:${var.region}:lambda:path/2015-03-31/functions/${var.user_management_lambda_functions.get_user}/invocations"
+  passthrough_behavior    = "WHEN_NO_TEMPLATES"
 }
 
 resource "aws_api_gateway_method_response" "get_user_200" {
@@ -474,7 +478,7 @@ resource "aws_api_gateway_integration_response" "get_user_400" {
   resource_id = aws_api_gateway_resource.user.id
   http_method = aws_api_gateway_method.get_user.http_method
   status_code = "400"
-  selection_pattern = ".*\\[BadRequest\\].*"
+  selection_pattern = ".*\"statusCode\":500.*"
 
   response_templates = {
     "application/json" = "{\"message\": \"Bad Request\", \"code\": \"400\"}"
@@ -487,7 +491,7 @@ resource "aws_api_gateway_integration_response" "get_user_500" {
   resource_id = aws_api_gateway_resource.user.id
   http_method = aws_api_gateway_method.get_user.http_method
   status_code = "500"
-  selection_pattern = ".*\\[InternalServerError\\].*"
+  selection_pattern = ".*\"statusCode\":500.*"
 
   response_templates = {
     "application/json" = "{\"message\": \"Internal Server Error\", \"code\": \"500\"}"
@@ -519,7 +523,9 @@ resource "aws_api_gateway_integration" "update_user" {
   http_method = aws_api_gateway_method.update_user.http_method
   type        = "AWS"
   integration_http_method = "PUT"
+  credentials = var.api_gateway_user_role_arn
   uri         = "arn:aws:apigateway:${var.region}:lambda:path/2015-03-31/functions/${var.user_management_lambda_functions.update_user}/invocations"
+  passthrough_behavior    = "WHEN_NO_TEMPLATES"
 }
 
 resource "aws_api_gateway_method_response" "update_user_200" {
@@ -554,6 +560,7 @@ resource "aws_api_gateway_method_response" "update_user_500" {
   http_method = aws_api_gateway_method.update_user.http_method
   status_code = "500"
 
+
   response_models = {
     "application/json" = aws_api_gateway_model.error_response.name
   }
@@ -581,7 +588,7 @@ resource "aws_api_gateway_integration_response" "update_user_400" {
   resource_id = aws_api_gateway_resource.user.id
   http_method = aws_api_gateway_method.update_user.http_method
   status_code = "400"
-  selection_pattern = ".*\\[BadRequest\\].*"
+  selection_pattern = ".*\"statusCode\":500.*"
 
   response_templates = {
     "application/json" = "{\"message\": \"Bad Request\", \"code\": \"400\"}"
@@ -594,7 +601,7 @@ resource "aws_api_gateway_integration_response" "update_user_500" {
   resource_id = aws_api_gateway_resource.user.id
   http_method = aws_api_gateway_method.update_user.http_method
   status_code = "500"
-  selection_pattern = ".*\\[InternalServerError\\].*"
+  selection_pattern = ".*\"statusCode\":500.*"
 
   response_templates = {
     "application/json" = "{\"message\": \"Internal Server Error\", \"code\": \"500\"}"
@@ -622,7 +629,9 @@ resource "aws_api_gateway_integration" "delete_user" {
   http_method = aws_api_gateway_method.delete_user.http_method
   type        = "AWS"
   integration_http_method = "DELETE"
+  credentials = var.api_gateway_user_role_arn
   uri         = "arn:aws:apigateway:${var.region}:lambda:path/2015-03-31/functions/${var.user_management_lambda_functions.delete_user}/invocations"
+  passthrough_behavior    = "WHEN_NO_TEMPLATES"
 }
 
 resource "aws_api_gateway_method_response" "delete_user_200" {
@@ -657,6 +666,7 @@ resource "aws_api_gateway_method_response" "delete_user_500" {
   http_method = aws_api_gateway_method.delete_user.http_method
   status_code = "500"
 
+
   response_models = {
     "application/json" = aws_api_gateway_model.error_response.name
   }
@@ -684,7 +694,7 @@ resource "aws_api_gateway_integration_response" "delete_user_400" {
   resource_id = aws_api_gateway_resource.user.id
   http_method = aws_api_gateway_method.delete_user.http_method
   status_code = "400"
-  selection_pattern = ".*\\[BadRequest\\].*"
+  selection_pattern = ".*\"statusCode\":500.*"
 
   response_templates = {
     "application/json" = "{\"message\": \"Bad Request\", \"code\": \"400\"}"
@@ -697,7 +707,7 @@ resource "aws_api_gateway_integration_response" "delete_user_500" {
   resource_id = aws_api_gateway_resource.user.id
   http_method = aws_api_gateway_method.delete_user.http_method
   status_code = "500"
-  selection_pattern = ".*\\[InternalServerError\\].*"
+  selection_pattern = ".*\"statusCode\":500.*"
 
   response_templates = {
     "application/json" = "{\"message\": \"Internal Server Error\", \"code\": \"500\"}"
@@ -727,7 +737,9 @@ resource "aws_api_gateway_integration" "list_all_users" {
   http_method = aws_api_gateway_method.list_all_users.http_method
   type        = "AWS_PROXY"
   integration_http_method = "POST"
+  credentials = var.api_gateway_admin_role_arn
   uri         = "arn:aws:apigateway:${var.region}:lambda:path/2015-03-31/functions/${var.user_management_lambda_functions.list_all_users}/invocations"
+  passthrough_behavior    = "WHEN_NO_TEMPLATES"
 }
 
 resource "aws_api_gateway_method_response" "list_all_users_200" {
@@ -789,7 +801,7 @@ resource "aws_api_gateway_integration_response" "list_all_users_400" {
   resource_id = aws_api_gateway_resource.admin_users.id
   http_method = aws_api_gateway_method.list_all_users.http_method
   status_code = "400"
-  selection_pattern = ".*\\[BadRequest\\].*"
+  selection_pattern = ".*\"statusCode\":500.*"
 
   response_templates = {
     "application/json" = "{\"message\": \"Bad Request\", \"code\": \"400\"}"
@@ -802,7 +814,7 @@ resource "aws_api_gateway_integration_response" "list_all_users_500" {
   resource_id = aws_api_gateway_resource.admin_users.id
   http_method = aws_api_gateway_method.list_all_users.http_method
   status_code = "500"
-  selection_pattern = ".*\\[InternalServerError\\].*"
+  selection_pattern = ".*\"statusCode\":500.*"
 
   response_templates = {
     "application/json" = "{\"message\": \"Internal Server Error\", \"code\": \"500\"}"
@@ -830,7 +842,9 @@ resource "aws_api_gateway_integration" "grant_admin" {
   http_method = aws_api_gateway_method.grant_admin.http_method
   type        = "AWS"
   integration_http_method = "POST"
+  credentials = var.api_gateway_admin_role_arn
   uri         = "arn:aws:apigateway:${var.region}:lambda:path/2015-03-31/functions/${var.user_management_lambda_functions.grant_admin}/invocations"
+  passthrough_behavior    = "WHEN_NO_TEMPLATES"
 }
 
 resource "aws_api_gateway_method_response" "grant_admin_200" {
@@ -892,7 +906,7 @@ resource "aws_api_gateway_integration_response" "grant_admin_400" {
   resource_id = aws_api_gateway_resource.grant_admin.id
   http_method = aws_api_gateway_method.grant_admin.http_method
   status_code = "400"
-  selection_pattern = ".*\\[BadRequest\\].*"
+  selection_pattern = ".*\"statusCode\":500.*"
 
   response_templates = {
     "application/json" = "{\"message\": \"Bad Request\", \"code\": \"400\"}"
@@ -905,7 +919,7 @@ resource "aws_api_gateway_integration_response" "grant_admin_500" {
   resource_id = aws_api_gateway_resource.grant_admin.id
   http_method = aws_api_gateway_method.grant_admin.http_method
   status_code = "500"
-  selection_pattern = ".*\\[InternalServerError\\].*"
+  selection_pattern = ".*\"statusCode\":500.*"
 
   response_templates = {
     "application/json" = "{\"message\": \"Internal Server Error\", \"code\": \"500\"}"
@@ -933,7 +947,9 @@ resource "aws_api_gateway_integration" "revoke_admin" {
   http_method = aws_api_gateway_method.revoke_admin.http_method
   type        = "AWS"
   integration_http_method = "POST"
+  credentials = var.api_gateway_admin_role_arn
   uri         = "arn:aws:apigateway:${var.region}:lambda:path/2015-03-31/functions/${var.user_management_lambda_functions.revoke_admin}/invocations"
+  passthrough_behavior    = "WHEN_NO_TEMPLATES"
 }
 
 resource "aws_api_gateway_method_response" "revoke_admin_200" {
@@ -995,7 +1011,7 @@ resource "aws_api_gateway_integration_response" "revoke_admin_400" {
   resource_id = aws_api_gateway_resource.grant_admin.id
   http_method = aws_api_gateway_method.revoke_admin.http_method
   status_code = "400"
-  selection_pattern = ".*\\[BadRequest\\].*"
+  selection_pattern = ".*\"statusCode\":500.*"
 
   response_templates = {
     "application/json" = "{\"message\": \"Bad Request\", \"code\": \"400\"}"
@@ -1008,7 +1024,7 @@ resource "aws_api_gateway_integration_response" "revoke_admin_500" {
   resource_id = aws_api_gateway_resource.grant_admin.id
   http_method = aws_api_gateway_method.revoke_admin.http_method
   status_code = "500"
-  selection_pattern = ".*\\[InternalServerError\\].*"
+  selection_pattern = ".*\"statusCode\":500.*"
 
   response_templates = {
     "application/json" = "{\"message\": \"Internal Server Error\", \"code\": \"500\"}"
@@ -1037,7 +1053,9 @@ resource "aws_api_gateway_integration" "admin_get_user" {
   http_method = aws_api_gateway_method.admin_get_user.http_method
   type        = "AWS"
   integration_http_method = "POST"
+  credentials = var.api_gateway_admin_role_arn
   uri         = "arn:aws:apigateway:${var.region}:lambda:path/2015-03-31/functions/${var.user_management_lambda_functions.admin_get_user}/invocations"
+  passthrough_behavior    = "WHEN_NO_TEMPLATES"
 }
 
 resource "aws_api_gateway_method_response" "admin_get_user_200" {
@@ -1099,7 +1117,7 @@ resource "aws_api_gateway_integration_response" "admin_get_user_400" {
   resource_id = aws_api_gateway_resource.admin_user.id
   http_method = aws_api_gateway_method.admin_get_user.http_method
   status_code = "400"
-  selection_pattern = ".*\\[BadRequest\\].*"
+  selection_pattern = ".*\"statusCode\":500.*"
 
   response_templates = {
     "application/json" = "{\"message\": \"Bad Request\", \"code\": \"400\"}"
@@ -1112,7 +1130,7 @@ resource "aws_api_gateway_integration_response" "admin_get_user_500" {
   resource_id = aws_api_gateway_resource.admin_user.id
   http_method = aws_api_gateway_method.admin_get_user.http_method
   status_code = "500"
-  selection_pattern = ".*\\[InternalServerError\\].*"
+  selection_pattern = ".*\"statusCode\":500.*"
 
   response_templates = {
     "application/json" = "{\"message\": \"Internal Server Error\", \"code\": \"500\"}"
@@ -1144,7 +1162,9 @@ resource "aws_api_gateway_integration" "admin_update_user" {
   http_method = aws_api_gateway_method.admin_update_user.http_method
   type        = "AWS_PROXY"
   integration_http_method = "POST"
+  credentials = var.api_gateway_admin_role_arn
   uri         = "arn:aws:apigateway:${var.region}:lambda:path/2015-03-31/functions/${var.user_management_lambda_functions.admin_update_user}/invocations"
+  passthrough_behavior    = "WHEN_NO_TEMPLATES"
 }
 
 resource "aws_api_gateway_method_response" "admin_update_user_200" {
@@ -1206,7 +1226,7 @@ resource "aws_api_gateway_integration_response" "admin_update_user_400" {
   resource_id = aws_api_gateway_resource.admin_user.id
   http_method = aws_api_gateway_method.admin_update_user.http_method
   status_code = "400"
-  selection_pattern = ".*\\[BadRequest\\].*"
+  selection_pattern = ".*\"statusCode\":500.*"
 
   response_templates = {
     "application/json" = "{\"message\": \"Bad Request\", \"code\": \"400\"}"
@@ -1219,7 +1239,7 @@ resource "aws_api_gateway_integration_response" "admin_update_user_500" {
   resource_id = aws_api_gateway_resource.admin_user.id
   http_method = aws_api_gateway_method.admin_update_user.http_method
   status_code = "500"
-  selection_pattern = ".*\\[InternalServerError\\].*"
+  selection_pattern = ".*\"statusCode\":500.*"
 
   response_templates = {
     "application/json" = "{\"message\": \"Internal Server Error\", \"code\": \"500\"}"
@@ -1248,7 +1268,9 @@ resource "aws_api_gateway_integration" "admin_delete_user" {
   http_method = aws_api_gateway_method.admin_delete_user.http_method
   type        = "AWS"
   integration_http_method = "POST"
+  credentials = var.api_gateway_admin_role_arn
   uri         = "arn:aws:apigateway:${var.region}:lambda:path/2015-03-31/functions/${var.user_management_lambda_functions.admin_delete_user}/invocations"
+  passthrough_behavior    = "WHEN_NO_TEMPLATES"
 }
 
 resource "aws_api_gateway_method_response" "admin_delete_user_200" {
@@ -1310,7 +1332,7 @@ resource "aws_api_gateway_integration_response" "admin_delete_user_400" {
   resource_id = aws_api_gateway_resource.admin_user.id
   http_method = aws_api_gateway_method.admin_delete_user.http_method
   status_code = "400"
-  selection_pattern = ".*\\[BadRequest\\].*"
+  selection_pattern = ".*\"statusCode\":500.*"
 
   response_templates = {
     "application/json" = "{\"message\": \"Bad Request\", \"code\": \"400\"}"
@@ -1323,7 +1345,7 @@ resource "aws_api_gateway_integration_response" "admin_delete_user_500" {
   resource_id = aws_api_gateway_resource.admin_user.id
   http_method = aws_api_gateway_method.admin_delete_user.http_method
   status_code = "500"
-  selection_pattern = ".*\\[InternalServerError\\].*"
+  selection_pattern = ".*\"statusCode\":500.*"
 
   response_templates = {
     "application/json" = "{\"message\": \"Internal Server Error\", \"code\": \"500\"}"

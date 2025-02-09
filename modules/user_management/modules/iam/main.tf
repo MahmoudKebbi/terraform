@@ -42,7 +42,21 @@ resource "aws_iam_role_policy" "lambda_policy" {
           "logs:PutLogEvents"
         ],
         Resource = "*"
+      },
+      {
+        Effect = "Allow",
+        Action = [
+          "cognito-idp:AdminAddUserToGroup",
+          "cognito-idp:AdminRemoveUserFromGroup",
+          "cognito-idp:ListGroups",
+          "cognito-idp:ListUsersInGroup",
+          "cognito-idp:AdminUpdateUserAttributes"
+        ],
+        Resource = [
+          "arn:aws:cognito-idp:${var.region}:${data.aws_caller_identity.current.account_id}:userpool/${var.user_pool_id}"
+        ]
       }
+
     ]
   })
 }
@@ -165,3 +179,96 @@ resource "aws_iam_role_policy_attachment" "admins_policy_attachment" {
   role       = aws_iam_role.admins_group_role.name
   policy_arn = aws_iam_policy.admin_policy.arn
 }
+
+resource "aws_iam_role" "user_profile_management_role" {
+  name = "user-profile-management-role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Effect = "Allow",
+        Principal = {
+          Service = "apigateway.amazonaws.com"
+        },
+        Action = "sts:AssumeRole"
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role" "api_gateway_user_role" {
+  name = "api-gateway-user-role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Effect = "Allow",
+        Principal = {
+          Service = "apigateway.amazonaws.com"
+        },
+        Action = "sts:AssumeRole"
+      }
+    ]
+  })
+}
+resource "aws_iam_role_policy" "api_gateway_user_policy" {
+  name   = "api-gateway-user-policy"
+  role   = aws_iam_role.api_gateway_user_role.id
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Effect = "Allow",
+        Action = "lambda:InvokeFunction",
+        Resource = [
+          var.create_user_arn,
+          var.get_user_arn,
+          var.update_user_arn,
+          var.delete_user_arn
+        ]
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role" "api_gateway_admin_role" {
+  name = "api-gateway-admin-role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Effect = "Allow",
+        Principal = {
+          Service = "apigateway.amazonaws.com"
+        },
+        Action = "sts:AssumeRole"
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy" "api_gateway_admin_policy" {
+  name   = "api-gateway-admin-policy"
+  role   = aws_iam_role.api_gateway_admin_role.id
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Effect = "Allow",
+        Action = "lambda:InvokeFunction",
+        Resource = [
+          var.list_all_users_arn,
+          var.assign_admin_role_arn,
+          var.revoke_admin_role_arn,
+          var.admin_get_user_arn,
+          var.admin_update_user_arn,
+          var.admin_delete_user_arn
+        ]
+      }
+    ]
+  })
+}
+

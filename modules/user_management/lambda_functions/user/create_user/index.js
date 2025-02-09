@@ -3,14 +3,29 @@ const dynamoDb = new AWS.DynamoDB.DocumentClient();
 const TABLE_NAME = process.env.TABLE_NAME;
 
 exports.handler = async (event) => {
-  const cognitoUsername =
-    event.requestContext.authorizer.claims["cognito:username"];
-  const usernameFromPath = event.pathParameters.username;
+  console.log("Received event:", JSON.stringify(event, null, 2));
 
-  if (usernameFromPath !== cognitoUsername) {
+  if (!TABLE_NAME) {
+    console.error("TABLE_NAME environment variable is not set");
     return {
-      statusCode: 403,
-      body: JSON.stringify({ message: "Forbidden" }),
+      statusCode: 500,
+      body: JSON.stringify({
+        message: "TABLE_NAME environment variable is not set",
+      }),
+    };
+  }
+
+  let userData;
+  try {
+    userData = JSON.parse(event.body);
+  } catch (error) {
+    console.error("Error parsing request body:", error);
+    return {
+      statusCode: 400,
+      body: JSON.stringify({
+        message: "Invalid request body",
+        error: error.message,
+      }),
     };
   }
 
@@ -23,7 +38,7 @@ exports.handler = async (event) => {
     street,
     city,
     province_state,
-  } = JSON.parse(event.body);
+  } = userData;
 
   const params = {
     TableName: TABLE_NAME,
@@ -41,14 +56,19 @@ exports.handler = async (event) => {
 
   try {
     await dynamoDb.put(params).promise();
+    console.log("User created successfully:", username);
     return {
       statusCode: 201,
       body: JSON.stringify({ message: "User created successfully" }),
     };
   } catch (error) {
+    console.error("Error creating user:", error);
     return {
       statusCode: 500,
-      body: JSON.stringify({ message: "Failed to create user", error }),
+      body: JSON.stringify({
+        message: "Failed to create user",
+        error: error.message,
+      }),
     };
   }
 };

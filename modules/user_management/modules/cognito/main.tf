@@ -21,11 +21,12 @@ resource "aws_cognito_user_pool_client" "this" {
   name         = var.user_pool_client_name
   user_pool_id = aws_cognito_user_pool.this.id
 
-  explicit_auth_flows              = var.explicit_auth_flows
   allowed_oauth_flows              = var.allowed_oauth_flows
+  explicit_auth_flows              = var.explicit_auth_flows
   allowed_oauth_flows_user_pool_client = var.allowed_oauth_flows_user_pool_client
   allowed_oauth_scopes             = var.allowed_oauth_scopes
   callback_urls                    = var.callback_urls
+  auth_session_validity           = 5
 
   depends_on = [
     aws_cognito_user_pool.this

@@ -13,6 +13,11 @@ variable "user_dynamodb_table_name" {
   default     = "users"
 }
 
+variable "aws_api_gateway_rest_api_id" {
+  description = "ID of the API Gateway REST API"
+  type        = string
+}
+
 variable "user_pool_arn" {
   description = "Name of the Cognito User Pool"
   type        = string
@@ -48,5 +53,35 @@ variable "get_user_arn"{
 
 variable "update_user_arn"{
   description = "ARN of the Lambda function to update a user"
+  type        = string
+}
+
+variable "list_all_users_arn"{
+  description = "ARN of the Lambda function to list all users"
+  type        = string
+}
+
+variable "assign_admin_role_arn"{
+  description = "ARN of the Lambda function to assign an admin role"
+  type        = string
+}
+
+variable "revoke_admin_role_arn"{
+  description = "ARN of the Lambda function to revoke an admin role"
+  type        = string
+}
+
+variable "admin_get_user_arn"{
+  description = "ARN of the Lambda function to get a user as an admin"
+  type        = string
+}
+
+variable "admin_update_user_arn"{
+  description = "ARN of the Lambda function to update a user as an admin"
+  type        = string
+}
+
+variable "admin_delete_user_arn"{
+  description = "ARN of the Lambda function to delete a user as an admin"
   type        = string
 }

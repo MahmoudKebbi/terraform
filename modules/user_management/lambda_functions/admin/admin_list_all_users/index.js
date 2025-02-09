@@ -1,31 +1,18 @@
 const AWS = require("aws-sdk");
-const cognito = new AWS.CognitoIdentityServiceProvider();
 const dynamodb = new AWS.DynamoDB.DocumentClient();
-const userPoolId = process.env.USER_POOL_ID;
 const tableName = process.env.TABLE_NAME;
 
 exports.handler = async (event) => {
-  const adminUsername =
-    event.requestContext.authorizer.claims["cognito:username"];
+  // Check if the required environment variables are set
+  if (!tableName) {
+    return {
+      statusCode: 500,
+      body: JSON.stringify({ message: "TABLE_NAME environment variable is not set" }),
+    };
+  }
   const { limit, lastEvaluatedKey } = event.queryStringParameters || {};
 
   try {
-    // Check if the user is in the "Admins" group
-    const adminGroups = await cognito
-      .adminListGroupsForUser({
-        UserPoolId: userPoolId,
-        Username: adminUsername,
-      })
-      .promise();
-
-    const isAdmin = adminGroups.Groups.some(
-      (group) => group.GroupName === "Admins"
-    );
-
-    if (!isAdmin) {
-      throw new Error("User is not authorized to list all users");
-    }
-
     // Scan the DynamoDB table to get all users with pagination
     const scanParams = {
       TableName: tableName,

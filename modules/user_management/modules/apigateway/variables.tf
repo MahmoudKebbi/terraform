@@ -16,3 +16,13 @@ variable "cognito_user_pool_arn" {
   description = "The ARN of the Cognito User Pool"
   type        = string
 }
+
+variable "api_gateway_admin_role_arn"{
+  description = "The ARN of the admin role"
+  type        = string
+}
+
+variable "api_gateway_user_role_arn"{
+  description = "The ARN of the user role"
+  type        = string
+}

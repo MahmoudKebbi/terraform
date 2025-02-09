@@ -5,48 +5,68 @@ const TABLE_NAME = process.env.TABLE_NAME;
 const USER_POOL_ID = process.env.USER_POOL_ID;
 
 exports.handler = async (event) => {
-  const cognitoUsername =
-    event.requestContext.authorizer.claims["cognito:username"];
-  const usernameFromPath = event.pathParameters.username;
-
-  if (usernameFromPath !== cognitoUsername) {
+  
+  if (!TABLE_NAME || !USER_POOL_ID) {
+    console.error("Environment variables TABLE_NAME or USER_POOL_ID are not set");
     return {
-      statusCode: 403,
-      body: JSON.stringify({ message: "Forbidden" }),
+      statusCode: 500,
+      body: JSON.stringify({ message: "Server configuration error" }),
     };
   }
 
-  const user_id = event.requestContext.authorizer.claims.sub;
+  console.log("Received event:", JSON.stringify(event, null, 2));
+
+  const usernameFromPath = event.pathParameters.username;
+  const userId = event.requestContext.authorizer.claims.sub;
 
   const params = {
     TableName: TABLE_NAME,
-    Key: { user_id },
+    Key: { user_id: userId },
   };
 
   try {
-    // Delete the user from DynamoDB
-    const { Item } = await dynamoDb.delete(params).promise();
+    // Fetch the user from DynamoDB to verify existence
+    const { Item } = await dynamoDb.get(params).promise();
     if (!Item) {
+      console.error("User not found for user_id:", userId);
       return {
         statusCode: 404,
         body: JSON.stringify({ message: "User not found" }),
       };
     }
 
+    if (Item.username !== usernameFromPath) {
+      console.error(
+        "Username mismatch: path username:",
+        usernameFromPath,
+        "DB username:",
+        Item.username
+      );
+      return {
+        statusCode: 403,
+        body: JSON.stringify({ message: "Forbidden" }),
+      };
+    }
+
+    // Delete the user from DynamoDB
+    await dynamoDb.delete(params).promise();
+    console.log("User deleted from DynamoDB:", userId);
+
     // Delete the user from Cognito User Pool
     await cognito
       .adminDeleteUser({
         UserPoolId: USER_POOL_ID,
-        Username: cognitoUsername,
+        Username: Item.username,
       })
       .promise();
+    console.log("User deleted from Cognito User Pool:", Item.username);
 
     return {
       statusCode: 200,
       body: JSON.stringify({ message: "User deleted successfully" }),
     };
   } catch (error) {
-    console.error(error);
+    console.error("Error deleting user:", error);
     return {
       statusCode: 500,
       body: JSON.stringify({
