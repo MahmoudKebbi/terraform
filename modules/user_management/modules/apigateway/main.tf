@@ -372,7 +372,7 @@ resource "aws_api_gateway_integration_response" "create_user_400" {
   resource_id = aws_api_gateway_resource.users.id
   http_method = aws_api_gateway_method.create_user.http_method
   status_code = "400"
-  selection_pattern = ".*\"statusCode\":500.*"
+  selection_pattern = ".*\"statusCode\":400.*"
 
   response_templates = {
     "application/json" = "{\"message\": \"Bad Request\", \"code\": \"400\"}"
@@ -478,7 +478,7 @@ resource "aws_api_gateway_integration_response" "get_user_400" {
   resource_id = aws_api_gateway_resource.user.id
   http_method = aws_api_gateway_method.get_user.http_method
   status_code = "400"
-  selection_pattern = ".*\"statusCode\":500.*"
+  selection_pattern = ".*\"statusCode\":400.*"
 
   response_templates = {
     "application/json" = "{\"message\": \"Bad Request\", \"code\": \"400\"}"
@@ -588,7 +588,7 @@ resource "aws_api_gateway_integration_response" "update_user_400" {
   resource_id = aws_api_gateway_resource.user.id
   http_method = aws_api_gateway_method.update_user.http_method
   status_code = "400"
-  selection_pattern = ".*\"statusCode\":500.*"
+  selection_pattern = ".*\"statusCode\":400.*"
 
   response_templates = {
     "application/json" = "{\"message\": \"Bad Request\", \"code\": \"400\"}"
@@ -694,7 +694,7 @@ resource "aws_api_gateway_integration_response" "delete_user_400" {
   resource_id = aws_api_gateway_resource.user.id
   http_method = aws_api_gateway_method.delete_user.http_method
   status_code = "400"
-  selection_pattern = ".*\"statusCode\":500.*"
+  selection_pattern = ".*\"statusCode\":400.*"
 
   response_templates = {
     "application/json" = "{\"message\": \"Bad Request\", \"code\": \"400\"}"
@@ -801,7 +801,7 @@ resource "aws_api_gateway_integration_response" "list_all_users_400" {
   resource_id = aws_api_gateway_resource.admin_users.id
   http_method = aws_api_gateway_method.list_all_users.http_method
   status_code = "400"
-  selection_pattern = ".*\"statusCode\":500.*"
+  selection_pattern = ".*\"statusCode\":400.*"
 
   response_templates = {
     "application/json" = "{\"message\": \"Bad Request\", \"code\": \"400\"}"
@@ -906,7 +906,7 @@ resource "aws_api_gateway_integration_response" "grant_admin_400" {
   resource_id = aws_api_gateway_resource.grant_admin.id
   http_method = aws_api_gateway_method.grant_admin.http_method
   status_code = "400"
-  selection_pattern = ".*\"statusCode\":500.*"
+  selection_pattern = ".*\"statusCode\":400.*"
 
   response_templates = {
     "application/json" = "{\"message\": \"Bad Request\", \"code\": \"400\"}"
@@ -1011,7 +1011,7 @@ resource "aws_api_gateway_integration_response" "revoke_admin_400" {
   resource_id = aws_api_gateway_resource.grant_admin.id
   http_method = aws_api_gateway_method.revoke_admin.http_method
   status_code = "400"
-  selection_pattern = ".*\"statusCode\":500.*"
+  selection_pattern = ".*\"statusCode\":400.*"
 
   response_templates = {
     "application/json" = "{\"message\": \"Bad Request\", \"code\": \"400\"}"
@@ -1117,7 +1117,7 @@ resource "aws_api_gateway_integration_response" "admin_get_user_400" {
   resource_id = aws_api_gateway_resource.admin_user.id
   http_method = aws_api_gateway_method.admin_get_user.http_method
   status_code = "400"
-  selection_pattern = ".*\"statusCode\":500.*"
+  selection_pattern = ".*\"statusCode\":400.*"
 
   response_templates = {
     "application/json" = "{\"message\": \"Bad Request\", \"code\": \"400\"}"
@@ -1226,7 +1226,7 @@ resource "aws_api_gateway_integration_response" "admin_update_user_400" {
   resource_id = aws_api_gateway_resource.admin_user.id
   http_method = aws_api_gateway_method.admin_update_user.http_method
   status_code = "400"
-  selection_pattern = ".*\"statusCode\":500.*"
+  selection_pattern = ".*\"statusCode\":400.*"
 
   response_templates = {
     "application/json" = "{\"message\": \"Bad Request\", \"code\": \"400\"}"
@@ -1332,7 +1332,7 @@ resource "aws_api_gateway_integration_response" "admin_delete_user_400" {
   resource_id = aws_api_gateway_resource.admin_user.id
   http_method = aws_api_gateway_method.admin_delete_user.http_method
   status_code = "400"
-  selection_pattern = ".*\"statusCode\":500.*"
+  selection_pattern = ".*\"statusCode\":400.*"
 
   response_templates = {
     "application/json" = "{\"message\": \"Bad Request\", \"code\": \"400\"}"
