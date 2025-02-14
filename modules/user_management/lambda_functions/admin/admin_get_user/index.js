@@ -1,64 +1,70 @@
 const AWS = require("aws-sdk");
-const dynamodb = new AWS.DynamoDB.DocumentClient();
-const tableName = process.env.TABLE_NAME;
-const usernameIndex = process.env.USERNAME_INDEX; // Add the GSI name as an environment variable
+const cognito = new AWS.CognitoIdentityServiceProvider();
+const userPoolId = process.env.USER_POOL_ID;
 
 exports.handler = async (event) => {
   console.log("Received event:", JSON.stringify(event, null, 2));
 
-  if (!tableName || !usernameIndex) {
-    console.error(
-      "Environment variables TABLE_NAME or USERNAME_INDEX are not set"
-    );
+  if (!userPoolId) {
+    console.error("USER_POOL_ID environment variable is not set");
     return {
       statusCode: 500,
       body: JSON.stringify({
-        message:
-          "Environment variables TABLE_NAME or USERNAME_INDEX are not set",
+        error: "USER_POOL_ID environment variable is not set",
       }),
     };
   }
 
-  const usernameToGet = event.pathParameters.username; // Assuming username is passed as a path parameter
-  console.log("usernameToGet:", usernameToGet);
+  let username;
+  try {
+    username = JSON.parse(event.body).username;
+    console.log("Username to be updated:", username);
+  } catch (parseError) {
+    console.error("Error parsing event body:", parseError);
+    return {
+      statusCode: 400,
+      body: JSON.stringify({
+        error: "Invalid request body",
+        details: parseError.message,
+      }),
+    };
+  }
+
+  const removeParams = {
+    GroupName: "Admins",
+    UserPoolId: userPoolId,
+    Username: username,
+  };
+
+  const addParams = {
+    GroupName: "Users",
+    UserPoolId: userPoolId,
+    Username: username,
+  };
 
   try {
-    const params = {
-      TableName: tableName,
-      IndexName: usernameIndex, // Use the GSI
-      KeyConditionExpression: "username = :username",
-      ExpressionAttributeValues: {
-        ":username": usernameToGet,
-      },
-    };
+    // Remove user from Admins group
+    await cognito.adminRemoveUserFromGroup(removeParams).promise();
+    console.log(`User ${username} removed from Admins group`);
 
-    console.log(
-      "Querying DynamoDB with params:",
-      JSON.stringify(params, null, 2)
-    );
-    const result = await dynamodb.query(params).promise();
-    console.log("Query result:", JSON.stringify(result, null, 2));
+    // Add user to Users group
+    await cognito.adminAddUserToGroup(addParams).promise();
+    console.log(`User ${username} added to Users group`);
 
-    if (result.Items.length === 0) {
-      console.error("User not found for username:", usernameToGet);
-      return {
-        statusCode: 404,
-        body: JSON.stringify({ message: "User not found" }),
-      };
-    }
-
-    console.log("User found:", JSON.stringify(result.Items[0], null, 2));
     return {
       statusCode: 200,
-      body: JSON.stringify(result.Items[0]),
+      body: JSON.stringify({
+        message:
+          "User removed from admin group and added to users group successfully",
+      }),
     };
   } catch (error) {
-    console.error("Error querying DynamoDB:", error);
+    console.error("Error updating user groups:", error);
     return {
       statusCode: 500,
       body: JSON.stringify({
-        message: "Internal server error",
-        error: error.message,
+        error: "Could not update user groups",
+        details: error.message,
       }),
     };
   }

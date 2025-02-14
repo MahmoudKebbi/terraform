@@ -7,7 +7,9 @@ exports.handler = async (event) => {
   if (!tableName) {
     return {
       statusCode: 500,
-      body: JSON.stringify({ message: "TABLE_NAME environment variable is not set" }),
+      body: JSON.stringify({
+        message: "TABLE_NAME environment variable is not set",
+      }),
     };
   }
   const { limit, lastEvaluatedKey } = event.queryStringParameters || {};

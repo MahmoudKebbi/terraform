@@ -3,28 +3,27 @@ const cognito = new AWS.CognitoIdentityServiceProvider();
 const dynamodb = new AWS.DynamoDB.DocumentClient();
 const userPoolId = process.env.USER_POOL_ID;
 const tableName = process.env.TABLE_NAME;
-const usernameIndex = process.env.USERNAME_INDEX; // Add the GSI name as an environment variable
 
 exports.handler = async (event) => {
-  const adminUsername =
-    event.requestContext.authorizer.claims["cognito:username"];
+  console.log("Received event:", JSON.stringify(event, null, 2));
+
+  // Log environment variables
+  console.log("Environment variables:", JSON.stringify(process.env, null, 2));
+
+  const senderGroups = event.requestContext.authorizer.claims["cognito:groups"];
   const usernameToDelete = event.pathParameters.username; // Assuming username is passed as a path parameter
 
   try {
-    // Check if the user is in the "Admins" group
-    const adminGroups = await cognito
-      .adminListGroupsForUser({
-        UserPoolId: userPoolId,
-        Username: adminUsername,
-      })
-      .promise();
-
-    const isAdmin = adminGroups.Groups.some(
-      (group) => group.GroupName === "Admins"
-    );
-
-    if (!isAdmin) {
-      throw new Error("User is not authorized to delete users");
+    // Check if the sender is in the Admins group
+    if (!senderGroups.includes("Admins")) {
+      console.warn("Access denied: sender is not in Admins group");
+      return {
+        statusCode: 403,
+        body: JSON.stringify({
+          error: "Access denied",
+          message: "You must be an admin to perform this action",
+        }),
+      };
     }
 
     // Query the DynamoDB table to get the UUID using the username
@@ -37,8 +36,10 @@ exports.handler = async (event) => {
       },
     };
 
+    console.log("Querying DynamoDB with params:", queryParams);
     const queryResult = await dynamodb.query(queryParams).promise();
     if (queryResult.Items.length === 0) {
+      console.warn("User not found in DynamoDB");
       return {
         statusCode: 404,
         body: JSON.stringify({ message: "User not found" }),
@@ -48,6 +49,7 @@ exports.handler = async (event) => {
     const user_id = queryResult.Items[0].user_id; // Assuming the primary key is named 'uuid'
 
     // Delete the user from Cognito
+    console.log("Deleting user from Cognito:", usernameToDelete);
     await cognito
       .adminDeleteUser({
         UserPoolId: userPoolId,
@@ -56,6 +58,7 @@ exports.handler = async (event) => {
       .promise();
 
     // Delete the user from DynamoDB using the UUID
+    console.log("Deleting user from DynamoDB with user_id:", user_id);
     await dynamodb
       .delete({
         TableName: tableName,
@@ -65,12 +68,13 @@ exports.handler = async (event) => {
       })
       .promise();
 
+    console.log("User deleted successfully");
     return {
       statusCode: 200,
       body: JSON.stringify({ message: "User deleted successfully" }),
     };
   } catch (error) {
-    console.error(error);
+    console.error("Error deleting user:", error);
     return {
       statusCode: 500,
       body: JSON.stringify({ message: error.message }),

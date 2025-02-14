@@ -13,11 +13,13 @@ resource "aws_lambda_function" "create_user" {
   environment {
     variables = var.environment_variables
   }
+  tags = var.tags
 }
 
 resource "aws_cloudwatch_log_group" "create_user_log_group" {
   name              = "/aws/lambda/${aws_lambda_function.create_user.function_name}"
   retention_in_days = 14
+  tags = var.tags
 }
 
 resource "aws_lambda_function" "get_user" {
@@ -30,11 +32,13 @@ resource "aws_lambda_function" "get_user" {
   environment {
     variables = var.environment_variables
   }
+  tags = var.tags
 }
 
 resource "aws_cloudwatch_log_group" "get_user_log_group" {
   name              = "/aws/lambda/${aws_lambda_function.get_user.function_name}"
   retention_in_days = 14
+  tags = var.tags
 }
 
 resource "aws_lambda_function" "update_user" {
@@ -45,13 +49,17 @@ resource "aws_lambda_function" "update_user" {
   filename      = var.update_user_filename
 
   environment {
-    variables = var.environment_variables
+    variables = merge(var.environment_variables, {
+      USER_POOL_ID = var.user_pool_id
+    })
   }
+  tags = var.tags
 }
 
 resource "aws_cloudwatch_log_group" "update_user_log_group" {
   name              = "/aws/lambda/${aws_lambda_function.update_user.function_name}"
   retention_in_days = 14
+  tags = var.tags
 }
 
 resource "aws_lambda_function" "delete_user" {
@@ -62,13 +70,17 @@ resource "aws_lambda_function" "delete_user" {
   filename      = var.delete_user_filename
 
   environment {
-    variables = var.environment_variables
+    variables = merge(var.environment_variables, {
+      USER_POOL_ID = var.user_pool_id
+    })
   }
+  tags = var.tags
 }
 
 resource "aws_cloudwatch_log_group" "delete_user_log_group" {
   name              = "/aws/lambda/${aws_lambda_function.delete_user.function_name}"
   retention_in_days = 14
+  tags = var.tags
 }
 
 resource "aws_lambda_function" "post_confirmation" {
@@ -83,11 +95,13 @@ resource "aws_lambda_function" "post_confirmation" {
       USER_POOL_ID = var.user_pool_id
     })
   }
+  tags = var.tags
 }
 
 resource "aws_cloudwatch_log_group" "post_confirmation_log_group" {
   name              = "/aws/lambda/${aws_lambda_function.post_confirmation.function_name}"
   retention_in_days = 14
+  tags = var.tags
 }
 
 # Admin functions
@@ -103,11 +117,13 @@ resource "aws_lambda_function" "list_all_users" {
       USER_POOL_ID = var.user_pool_id
     })
   }
+  tags = var.tags
 }
 
 resource "aws_cloudwatch_log_group" "list_all_users_log_group" {
   name              = "/aws/lambda/${aws_lambda_function.list_all_users.function_name}"
   retention_in_days = 14
+  tags = var.tags
 }
 
 resource "aws_lambda_function" "assign_admin_role" {
@@ -122,11 +138,13 @@ resource "aws_lambda_function" "assign_admin_role" {
       USER_POOL_ID = var.user_pool_id
     })
   }
+  tags = var.tags
 }
 
 resource "aws_cloudwatch_log_group" "assign_admin_role_log_group" {
   name              = "/aws/lambda/${aws_lambda_function.assign_admin_role.function_name}"
   retention_in_days = 14
+  tags = var.tags
 }
 
 resource "aws_lambda_function" "revoke_admin_role" {
@@ -141,11 +159,13 @@ resource "aws_lambda_function" "revoke_admin_role" {
       USER_POOL_ID = var.user_pool_id
     })
   }
+  tags = var.tags
 }
 
 resource "aws_cloudwatch_log_group" "revoke_admin_role_log_group" {
   name              = "/aws/lambda/${aws_lambda_function.revoke_admin_role.function_name}"
   retention_in_days = 14
+  tags = var.tags
 }
 
 resource "aws_lambda_function" "admin_get_user" {
@@ -160,11 +180,13 @@ resource "aws_lambda_function" "admin_get_user" {
       USER_POOL_ID = var.user_pool_id
     })
   }
+  tags = var.tags
 }
 
 resource "aws_cloudwatch_log_group" "admin_get_user_log_group" {
   name              = "/aws/lambda/${aws_lambda_function.admin_get_user.function_name}"
   retention_in_days = 14
+  tags = var.tags
 }
 
 resource "aws_lambda_function" "admin_update_user" {
@@ -179,11 +201,13 @@ resource "aws_lambda_function" "admin_update_user" {
       USER_POOL_ID = var.user_pool_id
     })
   }
+  tags = var.tags
 }
 
 resource "aws_cloudwatch_log_group" "admin_update_user_log_group" {
   name              = "/aws/lambda/${aws_lambda_function.admin_update_user.function_name}"
   retention_in_days = 14
+  tags = var.tags
 }
 
 resource "aws_lambda_function" "admin_delete_user" {
@@ -198,9 +222,11 @@ resource "aws_lambda_function" "admin_delete_user" {
       USER_POOL_ID = var.user_pool_id
     })
   }
+  tags = var.tags
 }
 
 resource "aws_cloudwatch_log_group" "admin_delete_user_log_group" {
   name              = "/aws/lambda/${aws_lambda_function.admin_delete_user.function_name}"
   retention_in_days = 14
+  tags = var.tags
 }

@@ -85,3 +85,8 @@ variable "admin_delete_user_arn"{
   description = "ARN of the Lambda function to delete a user as an admin"
   type        = string
 }
+
+variable "tags" {
+  description = "A map of tags to assign to the resources"
+  type        = map(string)
+}

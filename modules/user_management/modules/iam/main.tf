@@ -16,6 +16,7 @@ resource "aws_iam_role" "lambda_execution_role" {
       }
     ]
   })
+  tags = var.tags
 }
 
 resource "aws_iam_role_policy" "lambda_policy" {
@@ -30,7 +31,13 @@ resource "aws_iam_role_policy" "lambda_policy" {
           "dynamodb:PutItem",
           "dynamodb:GetItem",
           "dynamodb:UpdateItem",
-          "dynamodb:DeleteItem"
+          "dynamodb:DeleteItem",
+          "dynamodb:Query",
+          "dynamodb:Scan",
+          "dynamodb:BatchGetItem",
+          "dynamodb:BatchWriteItem",
+          "dynamodb:DescribeTable",
+          "dynamodb:UpdateTable"
         ],
         Resource = "arn:aws:dynamodb:${var.region}:${data.aws_caller_identity.current.account_id}:table/${var.user_dynamodb_table_name}"
       },
@@ -50,13 +57,14 @@ resource "aws_iam_role_policy" "lambda_policy" {
           "cognito-idp:AdminRemoveUserFromGroup",
           "cognito-idp:ListGroups",
           "cognito-idp:ListUsersInGroup",
-          "cognito-idp:AdminUpdateUserAttributes"
+          "cognito-idp:AdminUpdateUserAttributes",
+          "cognito-idp:AdminDeleteUser",
+          "cognito-idp:AdminGetUser"
         ],
         Resource = [
           "arn:aws:cognito-idp:${var.region}:${data.aws_caller_identity.current.account_id}:userpool/${var.user_pool_id}"
         ]
       }
-
     ]
   })
 }
@@ -81,6 +89,7 @@ resource "aws_iam_policy" "lambda_cognito_policy" {
       }
     ]
   })
+  tags = var.tags
 }
 
 resource "aws_iam_role_policy_attachment" "lambda_cognito_policy_attachment" {
@@ -112,6 +121,7 @@ resource "aws_iam_role" "users_group_role" {
       }
     ]
   })
+  tags = var.tags
 }
 
 resource "aws_iam_role" "admins_group_role" {
@@ -129,6 +139,7 @@ resource "aws_iam_role" "admins_group_role" {
       }
     ]
   })
+  tags = var.tags
 }
 
 resource "aws_iam_policy" "user_policy" {
@@ -151,6 +162,7 @@ resource "aws_iam_policy" "user_policy" {
       }
     ]
   })
+  tags = var.tags
 }
 
 resource "aws_iam_policy" "admin_policy" {
@@ -168,6 +180,7 @@ resource "aws_iam_policy" "admin_policy" {
       }
     ]
   })
+  tags = var.tags
 }
 
 resource "aws_iam_role_policy_attachment" "users_policy_attachment" {
@@ -195,6 +208,7 @@ resource "aws_iam_role" "user_profile_management_role" {
       }
     ]
   })
+  tags = var.tags
 }
 
 resource "aws_iam_role" "api_gateway_user_role" {
@@ -212,6 +226,7 @@ resource "aws_iam_role" "api_gateway_user_role" {
       }
     ]
   })
+  tags = var.tags
 }
 resource "aws_iam_role_policy" "api_gateway_user_policy" {
   name   = "api-gateway-user-policy"
@@ -248,6 +263,7 @@ resource "aws_iam_role" "api_gateway_admin_role" {
       }
     ]
   })
+  tags = var.tags
 }
 
 resource "aws_iam_role_policy" "api_gateway_admin_policy" {

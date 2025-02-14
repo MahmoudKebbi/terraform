@@ -56,7 +56,7 @@ variable "explicit_auth_flows" {
 }
 
 variable "allowed_oauth_flows" {
-  description = "The allowed OAuth flows"
+  description = "Allowed OAuth flows"
   type        = list(string)
   default     = ["code"]
 }
@@ -68,9 +68,9 @@ variable "allowed_oauth_flows_user_pool_client" {
 }
 
 variable "allowed_oauth_scopes" {
-  description = "The allowed OAuth scopes"
+  description = "Allowed OAuth scopes"
   type        = list(string)
-  default     = ["phone", "email", "openid", "profile", "aws.cognito.signin.user.admin"]
+  default     = ["phone", "email", "openid", "profile"]
 }
 
 variable "callback_urls" {
@@ -90,4 +90,19 @@ variable "user_role_arn"{
 variable "admin_role_arn"{
   description = "The ARN of the policy to attach to the admins group"
   type        = string
+}
+
+variable "google_client_id" {
+  description = "Google Client ID"
+  type        = string
+}
+
+variable "google_client_secret" {
+  description = "Google Client Secret"
+  type        = string
+}
+
+variable "tags" {
+  description = "A map of tags to assign to the resources"
+  type        = map(string)
 }

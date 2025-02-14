@@ -11,10 +11,8 @@ resource "aws_cognito_user_pool" "this" {
     require_symbols   = var.require_symbols
     require_uppercase = var.require_uppercase
   }
+  tags = var.tags  
   auto_verified_attributes = var.auto_verified_attributes
-#  lambda_config {
-#     post_confirmation = var.post_confirmation_arn
-#   }
 }
 
 resource "aws_cognito_user_pool_client" "this" {
@@ -28,8 +26,11 @@ resource "aws_cognito_user_pool_client" "this" {
   callback_urls                    = var.callback_urls
   auth_session_validity           = 5
 
+  supported_identity_providers = ["COGNITO", "Google"]
+
   depends_on = [
-    aws_cognito_user_pool.this
+    aws_cognito_user_pool.this,
+    aws_cognito_identity_provider.google
   ]
 }
 
@@ -51,4 +52,29 @@ resource "aws_cognito_user_group" "admins_group" {
 resource "aws_cognito_user_pool_domain" "main" {
   domain       = "equiluxenergy"
   user_pool_id = aws_cognito_user_pool.this.id
+}
+
+resource "aws_cognito_identity_provider" "google" {
+  user_pool_id = aws_cognito_user_pool.this.id
+  provider_name = "Google"
+  provider_type = "Google"
+
+  provider_details = {
+    client_id     = var.google_client_id
+    client_secret = var.google_client_secret
+    authorize_scopes = "openid email profile"
+  }
+
+  attribute_mapping = {
+    email = "email"
+  }
+}
+
+resource "null_resource" "update_user_pool" {
+
+  provisioner "local-exec" {
+    command = <<EOT
+      aws cognito-idp update-user-pool --user-pool-id ${aws_cognito_user_pool.this.id} --lambda-config PostConfirmation=${var.post_confirmation_arn} --auto-verified-attributes email
+    EOT
+  }
 }
