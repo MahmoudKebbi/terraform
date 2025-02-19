@@ -66,3 +66,21 @@ resource "aws_cloudwatch_log_group" "ws_handler_log_group" {
   retention_in_days = 14
   tags              = var.tags
 }
+
+resource "aws_lambda_function" "ws_authorizer" {
+  function_name    = "ws_authorizer"
+  runtime          = "nodejs16.x"
+  handler          = "index.handler"
+  role             = var.aws_iam_role_lambda_ws_role_arn
+  filename         = var.ws_authorizer_filename
+  source_code_hash = filebase64sha256("${var.ws_authorizer_filename}")
+
+  environment {
+    variables = {
+      USER_POOL_ID = var.user_pool_id,
+      REGION=var.region,
+      USER_POOL_ID=var.user_pool_client_id
+    }
+  }
+  tags = var.tags
+}

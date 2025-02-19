@@ -13,3 +13,18 @@ variable "tags"{
     description = "A map of tags to add to all resources"
     default = {}
 }
+
+variable "aws_lambda_function_trade_invoke_arn"{
+    type = string
+    description = "The ARN of the Lambda Function for Get Trade History"
+}
+
+variable "aws_lambda_function_trade_admin_invoke_arn"{
+    type = string
+    description = "The ARN of the Lambda Function for Get Trade History Admin"
+}
+
+variable "aws_lambda_function_ws_handler_invoke_arn"{
+    type = string
+    description = "The ARN of the Lambda Function for WebSocket Handler"
+}

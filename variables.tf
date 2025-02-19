@@ -17,7 +17,12 @@ variable "callback_urls" {
   type        = list(string)
 }
 
-variable "tags" {
+variable "user_management_tags" {
+  description = "A map of tags to assign to the resources"
+  type        = map(string)
+}
+
+variable "energy_trade_tags" {
   description = "A map of tags to assign to the resources"
   type        = map(string)
 }

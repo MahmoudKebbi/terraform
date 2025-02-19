@@ -13,3 +13,7 @@ output "aws_lambda_function_ws_handler_invoke_arn" {
 output "aws_lambda_function_ws_handler_function_name"{
     value = aws_lambda_function.ws_handler.function_name
 }
+
+output "ws_authorizer_lambda_arn"{
+    value = aws_lambda_function.ws_authorizer.arn
+}

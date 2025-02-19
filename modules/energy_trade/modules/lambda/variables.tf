@@ -48,3 +48,18 @@ variable "tags"{
     description = "A map of tags to add to all resources"
     default = {}
 }
+
+variable "ws_authorizer_filename"{
+    type = string
+    description = "The filename of the WebSocket Authorizer Lambda"
+}
+
+variable "user_pool_client_id"{
+    type = string
+    description = "The ARN of the Cognito User Pool"
+}
+
+variable "user_pool_id"{
+    type = string
+    description = "The ID of the Cognito User Pool Client"
+}

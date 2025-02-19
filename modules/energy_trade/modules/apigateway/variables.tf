@@ -43,3 +43,18 @@ variable "region"{
     type = string
     description = "The region in which the resources are created"
 }
+
+variable "apigateway_user_role_arn"{
+    type = string
+    description = "The ARN of the IAM Role for the API Gateway User Role"
+}
+
+variable "apigateway_admin_role_arn"{
+    type = string
+    description = "The ARN of the IAM Role for the API Gateway Admin Role"
+}
+
+variable "ws_authorizer_lambda_arn"{
+    type = string
+    description = "The ARN of the Lambda Function for WebSocket Authorizer"
+}

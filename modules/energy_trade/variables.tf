@@ -9,12 +9,17 @@ variable "user_pool_arn" {
   type        = string
 }
 
+variable "user_pool_client_id" {
+  description = "The ID of the Cognito User Pool Client"
+  type        = string
+}
+
 variable "region"{ 
     type = string
     description = "The region in which the resources are created"
 }
 
-variable "cognito_user_pool_client_id"{
+variable "user_pool_id"{
     type = string
-    description = "The ID of the Cognito User Pool Client"
+    description = "The ID of the Cognito User Pool"
 }
