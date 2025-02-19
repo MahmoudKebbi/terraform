@@ -1,7 +1,7 @@
 
 # Table to store trade records.
 resource "aws_dynamodb_table" "trades" {
-  name           = "trades"
+  name           = "Equilux_Energy_Trades"
   billing_mode   = "PAY_PER_REQUEST"
   hash_key       = "transaction_hash"
 
@@ -73,7 +73,7 @@ resource "aws_dynamodb_table" "trades" {
 
 # Table to store active WebSocket connection IDs.
 resource "aws_dynamodb_table" "ws_connections" {
-  name           = "ws_connections"
+  name           = "Equilux_WebSockets_Connections"
   billing_mode   = "PAY_PER_REQUEST"
   hash_key       = "connectionId"
 
