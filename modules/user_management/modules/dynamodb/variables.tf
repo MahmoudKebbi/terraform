@@ -25,15 +25,6 @@ variable "hash_key_type" {
   default     = "S"
 }
 
-variable "additional_attributes" {
-  description = "Additional attributes for the table"
-  type = list(object({
-    name = string
-    type = string
-  }))
-  default = []
-}
-
 variable "tags" {
   description = "A map of tags to assign to the resource"
   type        = map(string)

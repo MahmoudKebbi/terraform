@@ -48,6 +48,13 @@ resource "aws_api_gateway_resource" "admin_trade" {
   path_part   = "{trade_id}"
 }
 
+resource "aws_api_gateway_request_validator" "strict_query_params" {
+  rest_api_id                 = aws_api_gateway_rest_api.this.id
+  name                        = "StrictQueryParams"
+  validate_request_body       = false
+  validate_request_parameters = true
+}
+
 resource "aws_api_gateway_method" "get_trade_history" {
   rest_api_id   = aws_api_gateway_rest_api.this.id
   resource_id   = aws_api_gateway_resource.trades.id
@@ -56,7 +63,12 @@ resource "aws_api_gateway_method" "get_trade_history" {
   authorizer_id = aws_api_gateway_authorizer.cognito_authorizer.id
 
   request_parameters = {
-    "method.request.header.Authorization" = true
+    "method.request.header.Authorization"                  = true
+    "method.request.querystring.buyer_username"            = false
+    "method.request.querystring.seller_username"           = false
+    "method.request.querystring.date"                      = false
+    "method.request.querystring.priceRange"                = false
+    "method.request.querystring.amountRange"               = false
   }
 }
 
@@ -125,7 +137,12 @@ resource "aws_api_gateway_method" "admin_get_trade_history" {
   authorizer_id = aws_api_gateway_authorizer.cognito_authorizer.id
 
   request_parameters = {
-    "method.request.header.Authorization" = true
+    "method.request.header.Authorization"                  = true
+    "method.request.querystring.buyer_username"            = false
+    "method.request.querystring.seller_username"           = false
+    "method.request.querystring.date"                      = false
+    "method.request.querystring.priceRange"                = false
+    "method.request.querystring.amountRange"               = false
   }
 }
 

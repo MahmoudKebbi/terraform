@@ -11,12 +11,12 @@ resource "aws_dynamodb_table" "trades" {
   }
 
   attribute {
-    name = "p1_user_id"
+    name = "buyer_username"
     type = "S"
   }
 
   attribute {
-    name = "p2_user_id"
+    name = "seller_username"
     type = "S"
   }
 
@@ -29,6 +29,16 @@ resource "aws_dynamodb_table" "trades" {
     name = "time"
     type = "S"
   }
+  
+  attribute {
+    name = "amount"
+    type = "S"
+  }
+
+  attribute {
+    name = "price_per_kwh"
+    type = "S"
+  }
 
   attribute {
     name = "block_number"
@@ -36,14 +46,14 @@ resource "aws_dynamodb_table" "trades" {
   }
 
   global_secondary_index {
-    name            = "p1_user_id-index"
-    hash_key        = "p1_user_id"
+    name            = "buyer_username-index"
+    hash_key        = "p1_username"
     projection_type = "ALL"
   }
 
   global_secondary_index {
-    name            = "p2_user_id-index"
-    hash_key        = "p2_user_id"
+    name            = "seller_username"
+    hash_key        = "seller_username"
     projection_type = "ALL"
   }
 
@@ -65,6 +75,17 @@ resource "aws_dynamodb_table" "trades" {
     projection_type = "ALL"
   }
 
+  global_secondary_index {
+    name           = "amount-index"
+    hash_key       = "amount"
+    projection_type = "ALL"
+  }
+
+  global_secondary_index {
+    name           = "price_per_kwh-index"
+    hash_key       = "price_per_kwh"
+    projection_type = "ALL"
+  }
     server_side_encryption {
     enabled = var.server_side_encryption_enabled
   }

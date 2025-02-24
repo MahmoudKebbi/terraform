@@ -9,6 +9,7 @@ exports.handler = async (event) => {
   console.log("User API Event:", JSON.stringify(event));
   const httpMethod = event.requestContext.http.method;
   const path = event.requestContext.http.path;
+  const username = event.requestContext.authorizer.claims['cognito:username'];
 
   try {
     if (httpMethod === "POST" && path === "/trades") {
@@ -16,7 +17,7 @@ exports.handler = async (event) => {
       return await createTrade(data);
     } else if (httpMethod === "GET") {
       if (event.pathParameters && event.pathParameters.trade_id) {
-        return await getTrade(event.pathParameters.trade_id);
+        return await getTrade(event.pathParameters.trade_id, username);
       } else {
         return await getTradeHistory(event);
       }
@@ -45,7 +46,7 @@ async function createTrade(data) {
   };
 }
 
-async function getTrade(trade_id) {
+async function getTrade(trade_id, username) {
   const result = await dynamoDB
     .get({ TableName: TABLE_NAME, Key: { trade_id } })
     .promise();
@@ -55,7 +56,18 @@ async function getTrade(trade_id) {
       body: JSON.stringify({ error: "Trade not found" }),
     };
   }
-  return { statusCode: 200, body: JSON.stringify(result.Item) };
+
+  const trade = result.Item;
+  if (trade.seller_username !== username && trade.buyer_username !== username) {
+    return {
+      statusCode: 403,
+      body: JSON.stringify({
+        error: "Forbidden: You are not authorized to view this trade",
+      }),
+    };
+  }
+
+  return { statusCode: 200, body: JSON.stringify(trade) };
 }
 
 async function getTradeHistory(event) {
@@ -65,11 +77,56 @@ async function getTradeHistory(event) {
     ? JSON.parse(decodeURIComponent(params.lastKey))
     : null;
 
+  // Extract filter parameters
+  const buyer = params.buyer;
+  const seller = params.seller;
+  const startDate = params.startDate ? new Date(params.startDate) : null;
+  const endDate = params.endDate ? new Date(params.endDate) : null;
+  const minPrice = params.minPrice ? parseFloat(params.minPrice) : null;
+  const maxPrice = params.maxPrice ? parseFloat(params.maxPrice) : null;
+  const username = event.requestContext.authorizer.claims['cognito:username'];
+  // Build the filter expression
+  let filterExpression =
+    "(buyer_username = :username OR seller_username = :username)";
+  let expressionAttributeValues = { ":username": username };
+
+  if (buyer) {
+    filterExpression += " AND buyer_username = :buyer";
+    expressionAttributeValues[":buyer"] = buyer;
+  }
+
+  if (seller) {
+    filterExpression += " AND seller_username = :seller";
+    expressionAttributeValues[":seller"] = seller;
+  }
+
+  if (startDate) {
+    filterExpression += " AND trade_date >= :startDate";
+    expressionAttributeValues[":startDate"] = startDate.toISOString();
+  }
+
+  if (endDate) {
+    filterExpression += " AND trade_date <= :endDate";
+    expressionAttributeValues[":endDate"] = endDate.toISOString();
+  }
+
+  if (minPrice) {
+    filterExpression += " AND price >= :minPrice";
+    expressionAttributeValues[":minPrice"] = minPrice;
+  }
+
+  if (maxPrice) {
+    filterExpression += " AND price <= :maxPrice";
+    expressionAttributeValues[":maxPrice"] = maxPrice;
+  }
+
   // In production, use a Query on a GSI with a sort key for ordering by timestamp.
   const scanParams = {
     TableName: TABLE_NAME,
     Limit: limit,
     ExclusiveStartKey: lastKey,
+    FilterExpression: filterExpression,
+    ExpressionAttributeValues: expressionAttributeValues,
   };
 
   const result = await dynamoDB.scan(scanParams).promise();

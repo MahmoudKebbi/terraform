@@ -48,6 +48,10 @@ exports.handler = async (event) => {
       street,
       city,
       province_state,
+      building,
+      floor,
+      apartment,
+      web_3_wallet_address,
     } = JSON.parse(event.body);
 
     let updateExpression = "set";
@@ -80,6 +84,22 @@ exports.handler = async (event) => {
     if (province_state) {
       updateExpression += " province_state = :province_state,";
       expressionAttributeValues[":province_state"] = province_state;
+    }
+    if (building) {
+      updateExpression += " building = :building,";
+      expressionAttributeValues[":building"] = building;
+    }
+    if (floor) {
+      updateExpression += " floor = :floor,";
+      expressionAttributeValues[":floor"] = floor;
+    }
+    if (apartment) {
+      updateExpression += " apartment = :apartment,";
+      expressionAttributeValues[":apartment"] = apartment;
+    }
+    if (web_3_wallet_address) {
+      updateExpression += " web_3_wallet_address = :web_3_wallet_address,";
+      expressionAttributeValues[":web_3_wallet_address"] = web_3_wallet_address;
     }
 
     // Remove the trailing comma

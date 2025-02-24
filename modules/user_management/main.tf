@@ -28,16 +28,6 @@ module "dynamodb" {
   billing_mode     = "PAY_PER_REQUEST"
   hash_key         = "user_id"
   hash_key_type    = "S"
-  additional_attributes = [
-    {
-      name = "email"
-      type = "S"
-    },
-    {
-      name = "username"
-      type = "S"
-    }
-  ]
   server_side_encryption_enabled = true
   tags = var.tags
 }
