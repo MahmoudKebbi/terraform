@@ -101,4 +101,76 @@ resource "aws_dynamodb_table" "user_table" {
     read_capacity      = 5
     write_capacity     = 5
   }
+
+  global_secondary_index {
+    name               = "first_name-index"
+    hash_key           = "first_name"
+    projection_type    = "ALL"
+    read_capacity      = 5
+    write_capacity     = 5
+  }
+
+  global_secondary_index {
+    name               = "last_name-index"
+    hash_key           = "last_name"
+    projection_type    = "ALL"
+    read_capacity      = 5
+    write_capacity     = 5
+  }
+
+  global_secondary_index {
+    name               = "landline-index"
+    hash_key           = "landline"
+    projection_type    = "ALL"
+    read_capacity      = 5
+    write_capacity     = 5
+  }
+
+  global_secondary_index {
+    name               = "street-index"
+    hash_key           = "street"
+    projection_type    = "ALL"
+    read_capacity      = 5
+    write_capacity     = 5
+  }
+
+  global_secondary_index {
+    name               = "city-index"
+    hash_key           = "city"
+    projection_type    = "ALL"
+    read_capacity      = 5
+    write_capacity     = 5
+  }
+
+  global_secondary_index {
+    name               = "province_state-index"
+    hash_key           = "province_state"
+    projection_type    = "ALL"
+    read_capacity      = 5
+    write_capacity     = 5
+  }
+
+  global_secondary_index {
+    name               = "building-index"
+    hash_key           = "building"
+    projection_type    = "ALL"
+    read_capacity      = 5
+    write_capacity     = 5
+  }
+
+  global_secondary_index {
+    name               = "floor-index"
+    hash_key           = "floor"
+    projection_type    = "ALL"
+    read_capacity      = 5
+    write_capacity     = 5
+  }
+
+  global_secondary_index {
+    name               = "apartment-index"
+    hash_key           = "apartment"
+    projection_type    = "ALL"
+    read_capacity      = 5
+    write_capacity     = 5
+  }
 }

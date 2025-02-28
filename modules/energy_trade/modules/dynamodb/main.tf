@@ -1,4 +1,3 @@
-
 # Table to store trade records.
 resource "aws_dynamodb_table" "trades" {
   name           = "Equilux_Energy_Trades"
@@ -47,12 +46,12 @@ resource "aws_dynamodb_table" "trades" {
 
   global_secondary_index {
     name            = "buyer_username-index"
-    hash_key        = "p1_username"
+    hash_key        = "buyer_username"
     projection_type = "ALL"
   }
 
   global_secondary_index {
-    name            = "seller_username"
+    name            = "seller_username-index"
     hash_key        = "seller_username"
     projection_type = "ALL"
   }
@@ -86,11 +85,11 @@ resource "aws_dynamodb_table" "trades" {
     hash_key       = "price_per_kwh"
     projection_type = "ALL"
   }
-    server_side_encryption {
+
+  server_side_encryption {
     enabled = var.server_side_encryption_enabled
   }
 }
-
 
 # Table to store active WebSocket connection IDs.
 resource "aws_dynamodb_table" "ws_connections" {

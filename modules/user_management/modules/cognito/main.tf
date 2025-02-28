@@ -25,6 +25,9 @@ resource "aws_cognito_user_pool_client" "this" {
   allowed_oauth_scopes             = var.allowed_oauth_scopes
   callback_urls                    = var.callback_urls
   auth_session_validity           = 5
+  id_token_validity               = 6
+  refresh_token_validity          = 30
+  access_token_validity           = 6
 
   supported_identity_providers = ["COGNITO", "Google"]
 
