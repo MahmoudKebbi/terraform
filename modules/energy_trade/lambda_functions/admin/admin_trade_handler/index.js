@@ -1,4 +1,3 @@
-// admin_trade_handler.js
 const AWS = require("aws-sdk");
 const dynamoDB = new AWS.DynamoDB.DocumentClient();
 
@@ -6,12 +5,13 @@ const TABLE_NAME = process.env.DYNAMODB_TABLE;
 
 exports.handler = async (event) => {
   console.log("Admin API Event:", JSON.stringify(event));
-  const httpMethod = event.requestContext.http.method;
+  const httpMethod = event.httpMethod;
   const path = event.requestContext.http.path;
 
   try {
+    // Get Cognito user groups
     const senderGroups =
-      event.requestContext.authorizer.claims["cognito:groups"] || [];
+      event.requestContext.authorizer?.claims?.["cognito:groups"] || [];
 
     if (!senderGroups.includes("Admins")) {
       return {
@@ -20,17 +20,13 @@ exports.handler = async (event) => {
       };
     }
 
-    if (httpMethod === "GET") {
-      if (event.pathParameters && event.pathParameters.trade_id) {
+    if (httpMethod === "GET" && path.startsWith("/trades")) {
+      if (event.pathParameters?.trade_id) {
         return await getTrade(event.pathParameters.trade_id);
       } else {
         return await getTradeHistory(event);
       }
-    } else if (
-      httpMethod === "DELETE" &&
-      event.pathParameters &&
-      event.pathParameters.trade_id
-    ) {
+    } else if (httpMethod === "DELETE" && event.pathParameters?.trade_id) {
       return await deleteTrade(event.pathParameters.trade_id);
     } else {
       return {
@@ -51,6 +47,7 @@ async function getTrade(trade_id) {
   const result = await dynamoDB
     .get({ TableName: TABLE_NAME, Key: { trade_id } })
     .promise();
+
   if (!result.Item) {
     return {
       statusCode: 404,
@@ -63,11 +60,17 @@ async function getTrade(trade_id) {
 async function getTradeHistory(event) {
   const params = event.queryStringParameters || {};
   const limit = params.limit ? parseInt(params.limit) : 10;
-  const lastKey = params.lastKey
-    ? JSON.parse(decodeURIComponent(params.lastKey))
-    : null;
-  const userFilter = params.user_id; // Optional: filter by a specific user
+  let lastKey = null;
 
+  try {
+    if (params.lastKey) {
+      lastKey = JSON.parse(decodeURIComponent(params.lastKey));
+    }
+  } catch (error) {
+    console.warn("Invalid lastKey format:", error);
+  }
+
+  const userFilter = params.user_id;
   let scanParams = {
     TableName: TABLE_NAME,
     Limit: limit,

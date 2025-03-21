@@ -1,4 +1,3 @@
-// user_trade_handler.js
 const AWS = require("aws-sdk");
 const dynamoDB = new AWS.DynamoDB.DocumentClient();
 
@@ -7,19 +6,19 @@ const TABLE_NAME = process.env.DYNAMODB_TABLE;
 
 exports.handler = async (event) => {
   console.log("User API Event:", JSON.stringify(event));
-  const httpMethod = event.requestContext.http.method;
-  const path = event.requestContext.http.path;
-  const username = event.requestContext.authorizer.claims['cognito:username'];
+
+  const httpMethod = event.httpMethod;
+  const path = event.path;
 
   try {
     if (httpMethod === "POST" && path === "/trades") {
       const data = JSON.parse(event.body);
       return await createTrade(data);
-    } else if (httpMethod === "GET") {
+    } else if (httpMethod === "GET" && path.startsWith("/trades")) {
       if (event.pathParameters && event.pathParameters.trade_id) {
-        return await getTrade(event.pathParameters.trade_id, username);
+        return await getTrade(event.pathParameters.trade_id);
       } else {
-        return await getTradeHistory(event);
+        return await getTradeHistory(event.queryStringParameters);
       }
     } else {
       return {
@@ -37,19 +36,25 @@ exports.handler = async (event) => {
 };
 
 async function createTrade(data) {
-  // Save the trade record to DynamoDB
-  await dynamoDB.put({ TableName: TABLE_NAME, Item: data }).promise();
+  if (!data.trade_id) {
+    return {
+      statusCode: 400,
+      body: JSON.stringify({ error: "Missing trade_id" }),
+    };
+  }
 
+  await dynamoDB.put({ TableName: TABLE_NAME, Item: data }).promise();
   return {
     statusCode: 201,
     body: JSON.stringify({ message: "Trade recorded", trade: data }),
   };
 }
 
-async function getTrade(trade_id, username) {
+async function getTrade(trade_id) {
   const result = await dynamoDB
     .get({ TableName: TABLE_NAME, Key: { trade_id } })
     .promise();
+
   if (!result.Item) {
     return {
       statusCode: 404,
@@ -57,76 +62,19 @@ async function getTrade(trade_id, username) {
     };
   }
 
-  const trade = result.Item;
-  if (trade.seller_username !== username && trade.buyer_username !== username) {
-    return {
-      statusCode: 403,
-      body: JSON.stringify({
-        error: "Forbidden: You are not authorized to view this trade",
-      }),
-    };
-  }
-
-  return { statusCode: 200, body: JSON.stringify(trade) };
+  return { statusCode: 200, body: JSON.stringify(result.Item) };
 }
 
-async function getTradeHistory(event) {
-  const params = event.queryStringParameters || {};
-  const limit = params.limit ? parseInt(params.limit) : 10;
-  const lastKey = params.lastKey
+async function getTradeHistory(params) {
+  const limit = params?.limit ? parseInt(params.limit) : 10;
+  const lastKey = params?.lastKey
     ? JSON.parse(decodeURIComponent(params.lastKey))
     : null;
 
-  // Extract filter parameters
-  const buyer = params.buyer;
-  const seller = params.seller;
-  const startDate = params.startDate ? new Date(params.startDate) : null;
-  const endDate = params.endDate ? new Date(params.endDate) : null;
-  const minPrice = params.minPrice ? parseFloat(params.minPrice) : null;
-  const maxPrice = params.maxPrice ? parseFloat(params.maxPrice) : null;
-  const username = event.requestContext.authorizer.claims['cognito:username'];
-  // Build the filter expression
-  let filterExpression =
-    "(buyer_username = :username OR seller_username = :username)";
-  let expressionAttributeValues = { ":username": username };
-
-  if (buyer) {
-    filterExpression += " AND buyer_username = :buyer";
-    expressionAttributeValues[":buyer"] = buyer;
-  }
-
-  if (seller) {
-    filterExpression += " AND seller_username = :seller";
-    expressionAttributeValues[":seller"] = seller;
-  }
-
-  if (startDate) {
-    filterExpression += " AND trade_date >= :startDate";
-    expressionAttributeValues[":startDate"] = startDate.toISOString();
-  }
-
-  if (endDate) {
-    filterExpression += " AND trade_date <= :endDate";
-    expressionAttributeValues[":endDate"] = endDate.toISOString();
-  }
-
-  if (minPrice) {
-    filterExpression += " AND price >= :minPrice";
-    expressionAttributeValues[":minPrice"] = minPrice;
-  }
-
-  if (maxPrice) {
-    filterExpression += " AND price <= :maxPrice";
-    expressionAttributeValues[":maxPrice"] = maxPrice;
-  }
-
-  // In production, use a Query on a GSI with a sort key for ordering by timestamp.
   const scanParams = {
     TableName: TABLE_NAME,
     Limit: limit,
     ExclusiveStartKey: lastKey,
-    FilterExpression: filterExpression,
-    ExpressionAttributeValues: expressionAttributeValues,
   };
 
   const result = await dynamoDB.scan(scanParams).promise();
