@@ -24,6 +24,7 @@ resource "aws_api_gateway_integration" "proxy" {
   uri         = var.ecs_service_url
   connection_type = "VPC_LINK"
   connection_id   = var.vpc_endpoint_id
+  credentials    = var.execute_role_arn
 }
 
 resource "aws_api_gateway_authorizer" "this" {
@@ -31,10 +32,6 @@ resource "aws_api_gateway_authorizer" "this" {
   rest_api_id = aws_api_gateway_rest_api.this.id
   type        = "COGNITO_USER_POOLS"
   provider_arns = [
-    var.user_pool_id
+    var.user_pool_arn
   ]
-}
-
-output "api_gateway_url" {
-  value = aws_api_gateway_rest_api.this.execution_arn
 }

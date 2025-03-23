@@ -1,4 +1,4 @@
-resource "aws_dynamodb_table" "this" {
+resource "aws_dynamodb_table" "equilux_chat" {
   name         = var.table_name
   billing_mode = "PAY_PER_REQUEST"
 
@@ -12,6 +12,16 @@ resource "aws_dynamodb_table" "this" {
 
   attribute {
     name = var.sort_key
+    type = "S"
+  }
+
+  attribute {
+    name = var.gsi1_partition_key
+    type = "S"
+  }
+
+  attribute {
+    name = var.gsi2_partition_key
     type = "S"
   }
 
@@ -32,8 +42,4 @@ resource "aws_dynamodb_table" "this" {
   tags = {
     Name = var.table_name
   }
-}
-
-output "table_name" {
-  value = aws_dynamodb_table.this.name
 }

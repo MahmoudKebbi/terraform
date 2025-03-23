@@ -1,36 +1,35 @@
-variable "aws_region" {
+variable "region" {
   description = "The AWS region to deploy to"
   default     = "eu-west-1"
 }
 
+variable "vpc_cidr" {
+  description = "The CIDR block for the VPC"
+  default     = "10.0.0.0/16"
+}
+
+variable "user_pool_arn"{
+  description = "The ID of the Cognito User Pool"
+}
+
 variable "repository_name" {
   description = "The name of the ECR repository"
-  default     = "my-api-repo"
+  default     = "equilux-chat-repo"
 }
 
 variable "cluster_name" {
   description = "The name of the ECS cluster"
-  default     = "my-ecs-cluster"
+  default     = "equilux-chat-cluster"
 }
 
 variable "service_name" {
   description = "The name of the ECS service"
-  default     = "my-ecs-service"
-}
-
-variable "user_pool_name" {
-  description = "The name of the Cognito User Pool"
-  default     = "my-user-pool"
-}
-
-variable "app_client_name" {
-  description = "The name of the Cognito App Client"
-  default     = "my-app-client"
+  default     = "equilux-chat-service"
 }
 
 variable "rest_api_name" {
   description = "The name of the API Gateway REST API"
-  default     = "my-api"
+  default     = "equilux-chat-api"
 }
 
 variable "dynamodb_table_name" {

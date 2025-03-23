@@ -28,3 +28,23 @@ module "energy_trade"{
   tags = var.energy_trade_tags
   user_pool_id=module.user_managment.user_pool_id
 }
+
+module "chat" {
+  source = "./modules/chat"
+  region = var.region
+  
+  vpc_cidr                = "10.0.0.0/16"
+  repository_name         = "equilux-chat-repo"
+  cluster_name            = "equilux-chat-cluster"
+  service_name            = "equilux-chat-service"
+  user_pool_arn           = module.user_managment.user_pool_arn
+  rest_api_name           = "equilux-chat-api"
+  dynamodb_table_name     = "Equilux_Messages"
+  dynamodb_partition_key  = "conversationId"
+  dynamodb_sort_key       = "timestamp"
+  dynamodb_gsi1_partition_key = "senderId"
+  dynamodb_gsi1_sort_key  = "timestamp"
+  dynamodb_gsi2_partition_key = "receiverId"
+  dynamodb_gsi2_sort_key  = "timestamp"
+  
+}
