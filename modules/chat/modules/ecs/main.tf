@@ -1,3 +1,23 @@
+resource "aws_iam_role" "execution_role" {
+  name = "${var.service_name}-execution-role"
+  
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [{
+      Action = "sts:AssumeRole",
+      Effect = "Allow",
+      Principal = {
+        Service = "ecs-tasks.amazonaws.com"
+      }
+    }]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "execution_role_policy" {
+  role       = aws_iam_role.execution_role.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
+}
+
 resource "aws_ecs_cluster" "this" {
   name = var.cluster_name
 }
@@ -8,6 +28,7 @@ resource "aws_ecs_task_definition" "this" {
   requires_compatibilities = ["FARGATE"]
   cpu                      = "256"
   memory                   = "512"
+  execution_role_arn       = aws_iam_role.execution_role.arn
   container_definitions    = jsonencode([{
     name      = var.service_name
     image     = var.container_image
@@ -22,21 +43,21 @@ resource "aws_ecs_task_definition" "this" {
 resource "aws_lb" "this" {
   name               = "${var.service_name}-lb"
   internal           = false
-  load_balancer_type = "network"  # Changed from "application"
+  load_balancer_type = "network"
   subnets            = var.subnets
-  # Remove security_groups - not needed for NLB
 }
 
 resource "aws_lb_target_group" "this" {
-  name     = "${var.service_name}-tg"
-  port     = 80
-  protocol = "HTTP"
-  vpc_id   = var.vpc_id
+  name        = "${var.service_name}-tg"
+  port        = 80
+  protocol    = "TCP"
+  vpc_id      = var.vpc_id
+  target_type = "ip"
+  
   health_check {
-    path = "/"
-    interval = 30
-    timeout = 5
-    healthy_threshold = 2
+    protocol            = "TCP"
+    interval            = 30
+    healthy_threshold   = 2
     unhealthy_threshold = 2
   }
 }
@@ -44,7 +65,7 @@ resource "aws_lb_target_group" "this" {
 resource "aws_lb_listener" "this" {
   load_balancer_arn = aws_lb.this.arn
   port              = "80"
-  protocol          = "HTTP"
+  protocol          = "TCP"
 
   default_action {
     type             = "forward"
@@ -112,5 +133,10 @@ resource "aws_appautoscaling_scheduled_action" "scale_down" {
     min_capacity = 0
     max_capacity = 0
   }
+}
+
+output "nlb_dns_name" {
+  description = "The DNS name of the load balancer"
+  value       = aws_lb.this.dns_name
 }
 

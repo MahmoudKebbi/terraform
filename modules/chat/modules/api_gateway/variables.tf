@@ -17,3 +17,13 @@ variable "vpc_endpoint_id" {
 variable "execute_role_arn" {
   description = "The ARN of the IAM role for API Gateway execution"
 }
+
+variable "stage_name" {
+  description = "The name of the API Gateway stage"
+  default = "dev"
+}
+
+variable "nlb_arn" {
+  description = "ARN of the Network Load Balancer"
+  type        = string
+}

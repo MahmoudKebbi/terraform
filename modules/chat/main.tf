@@ -26,6 +26,11 @@ module "ecs" {
   subnets           = module.vpc.private_subnets
   security_groups   = [module.vpc.ecs_security_group_id]
   vpc_id            = module.vpc.vpc_id
+
+  depends_on = [
+    module.ecr,
+    module.vpc
+  ]
 }
 
 module "api_gateway" {
@@ -35,6 +40,7 @@ module "api_gateway" {
   ecs_service_url   = module.ecs.service_url
   vpc_endpoint_id   = module.vpc.vpc_endpoint_id
   execute_role_arn  = module.iam.api_gateway_execute_role_arn
+  nlb_arn           = module.ecs.nlb_arn
 }
 
 
