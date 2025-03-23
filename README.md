@@ -151,5 +151,3 @@ This project is licensed under the [Appropriate License] - see the LICENSE file 
 ---
 
 <p align="center">Built with ❤️ by the Equilux Energy Team</p>
-
-Similar code found with 3 license types
