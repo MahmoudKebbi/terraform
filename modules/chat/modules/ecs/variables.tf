@@ -23,3 +23,7 @@ variable "security_groups" {
 variable "vpc_id" {
   description = "The VPC ID for the ECS service"
 }
+
+variable "table_name" {
+  description = "The name of the DynamoDB table"
+}

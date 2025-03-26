@@ -17,6 +17,16 @@ module "ecr" {
   repository_name = var.repository_name
 }
 
+module "dynamodb" {
+  source = "./modules/dynamodb"
+  table_name = var.dynamodb_table_name
+  partition_key = var.dynamodb_partition_key
+  sort_key = var.dynamodb_sort_key
+  gsi1_partition_key = var.dynamodb_gsi1_partition_key
+  gsi1_sort_key = var.dynamodb_gsi1_sort_key
+  gsi2_partition_key = var.dynamodb_gsi2_partition_key
+  gsi2_sort_key = var.dynamodb_gsi2_sort_key
+}
 
 module "ecs" {
   source = "./modules/ecs"
@@ -26,6 +36,7 @@ module "ecs" {
   subnets           = module.vpc.private_subnets
   security_groups   = [module.vpc.ecs_security_group_id]
   vpc_id            = module.vpc.vpc_id
+  table_name        = module.dynamodb.table_name
 
   depends_on = [
     module.ecr,
@@ -44,15 +55,6 @@ module "api_gateway" {
 }
 
 
-module "dynamodb" {
-  source = "./modules/dynamodb"
-  table_name = var.dynamodb_table_name
-  partition_key = var.dynamodb_partition_key
-  sort_key = var.dynamodb_sort_key
-  gsi1_partition_key = var.dynamodb_gsi1_partition_key
-  gsi1_sort_key = var.dynamodb_gsi1_sort_key
-  gsi2_partition_key = var.dynamodb_gsi2_partition_key
-  gsi2_sort_key = var.dynamodb_gsi2_sort_key
-}
+
 
 

@@ -1,3 +1,9 @@
+# Get current AWS account ID
+data "aws_caller_identity" "current" {}
+
+# Get current AWS region
+data "aws_region" "current" {}
+
 resource "aws_iam_role" "execution_role" {
   name = "${var.service_name}-execution-role"
   
@@ -18,6 +24,48 @@ resource "aws_iam_role_policy_attachment" "execution_role_policy" {
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
 }
 
+# Create a task role for the ECS task to access DynamoDB
+resource "aws_iam_role" "task_role" {
+  name = "${var.service_name}-task-role"
+  
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [{
+      Action = "sts:AssumeRole",
+      Effect = "Allow",
+      Principal = {
+        Service = "ecs-tasks.amazonaws.com"
+      }
+    }]
+  })
+}
+
+# Attach DynamoDB access policy to the task role
+resource "aws_iam_role_policy" "dynamodb_access" {
+  name = "dynamodb-access"
+  role = aws_iam_role.task_role.id
+  
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Action = [
+          "dynamodb:GetItem",
+          "dynamodb:PutItem",
+          "dynamodb:UpdateItem",
+          "dynamodb:DeleteItem",
+          "dynamodb:Query",
+          "dynamodb:Scan"
+        ],
+        Effect = "Allow",
+        Resource = [
+          "arn:aws:dynamodb:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:table/*"
+        ]
+      }
+    ]
+  })
+}
+
 resource "aws_ecs_cluster" "this" {
   name = var.cluster_name
 }
@@ -29,14 +77,42 @@ resource "aws_ecs_task_definition" "this" {
   cpu                      = "256"
   memory                   = "512"
   execution_role_arn       = aws_iam_role.execution_role.arn
+  task_role_arn            = aws_iam_role.task_role.arn
+  
   container_definitions    = jsonencode([{
     name      = var.service_name
     image     = var.container_image
     essential = true
     portMappings = [{
-      containerPort = 80
-      hostPort      = 80
+      containerPort = 8080
+      hostPort      = 8080
     }]
+    environment = [
+      {
+        name = "PORT",
+        value = "8080"
+      },
+      {
+        name = "AWS_REGION",
+        value = data.aws_region.current.name
+      },
+      {
+        name = "NODE_ENV",
+        value = "production"  # Change from localdev to production for ECS deployment
+      },
+      {
+        name = "USE_VPC_ENDPOINT",
+        value = "true"
+      },
+      {
+        name = "USERS_TABLE",
+        value = "Equilux_Users_Prosumers"
+      },
+      {
+        name = "MESSAGES_TABLE",
+        value = "Equilux_Messages"
+      }
+    ]
   }])
 }
 
@@ -49,7 +125,7 @@ resource "aws_lb" "this" {
 
 resource "aws_lb_target_group" "this" {
   name        = "${var.service_name}-tg"
-  port        = 80
+  port        = 8080  # Change from 80 to 8080
   protocol    = "TCP"
   vpc_id      = var.vpc_id
   target_type = "ip"
@@ -64,7 +140,7 @@ resource "aws_lb_target_group" "this" {
 
 resource "aws_lb_listener" "this" {
   load_balancer_arn = aws_lb.this.arn
-  port              = "80"
+  port              = "8080"  # Change from 80 to 8080
   protocol          = "TCP"
 
   default_action {
@@ -93,7 +169,7 @@ resource "aws_ecs_service" "this" {
   load_balancer {
     target_group_arn = aws_lb_target_group.this.arn
     container_name   = var.service_name
-    container_port   = 80
+    container_port   = 8080  # Change from 80 to 8080
   }
   
   depends_on = [aws_lb_listener.this]
