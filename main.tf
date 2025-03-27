@@ -38,6 +38,7 @@ module "chat" {
   cluster_name            = "equilux-chat-cluster"
   service_name            = "equilux-chat-service"
   user_pool_arn           = module.user_managment.user_pool_arn
+  user_pool_id            = module.user_managment.user_pool_id
   rest_api_name           = "equilux-chat-api"
   dynamodb_table_name     = "Equilux_Messages"
   dynamodb_partition_key  = "conversationId"

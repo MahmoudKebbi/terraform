@@ -1,7 +1,15 @@
 variable "vpc_cidr" {
-  description = "The CIDR block for the VPC"
+  description = "CIDR block for the VPC"
+  type        = string
 }
 
-variable "aws_region" {
-  description = "The AWS region"
+variable "name_prefix" {
+  description = "Prefix to use for resource names"
+  type        = string
+}
+
+variable "tags" {
+  description = "Tags to apply to resources"
+  type        = map(string)
+  default     = {}
 }

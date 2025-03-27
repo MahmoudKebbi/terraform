@@ -2,19 +2,20 @@ provider "aws" {
   region = var.region
 }
 
+locals {
+  name_prefix = "${var.project_name}-${var.environment}"
+  tags = {
+    Environment = var.environment
+    Project     = var.project_name
+    ManagedBy   = "Terraform"
+  }
+}
+
 module "vpc" {
-  source = "./modules/vpc"
-  aws_region = var.region
-  vpc_cidr = var.vpc_cidr
-}
-
-module "iam" {
-  source = "./modules/iam"
-}
-
-module "ecr" {
-  source = "./modules/ecr"
-  repository_name = var.repository_name
+  source     = "./modules/vpc"
+  vpc_cidr   = var.vpc_cidr
+  name_prefix = local.name_prefix
+  tags       = local.tags
 }
 
 module "dynamodb" {
@@ -28,33 +29,30 @@ module "dynamodb" {
   gsi2_sort_key = var.dynamodb_gsi2_sort_key
 }
 
-module "ecs" {
-  source = "./modules/ecs"
-  cluster_name      = var.cluster_name
-  service_name      = var.service_name
-  container_image   = "${module.ecr.repository_url}:latest"
-  subnets           = module.vpc.private_subnets
-  security_groups   = [module.vpc.ecs_security_group_id]
+module "iam" {
+  source             = "./modules/iam"
+  name_prefix        = local.name_prefix
+  dynamodb_table_arn = module.dynamodb.table_arn
+}
+
+module "ecr" {
+  source = "./modules/ecr"
+  repository_name = var.repository_name
+}
+
+
+
+module "app_runner" {
+  source            = "./modules/app_runner"
+  name_prefix       = local.name_prefix
+  docker_image      = "${module.ecr.repository_url}:latest"
   vpc_id            = module.vpc.vpc_id
-  table_name        = module.dynamodb.table_name
-
-  depends_on = [
-    module.ecr,
-    module.vpc
-  ]
+  subnet_ids        = module.vpc.private_subnet_ids
+  security_group_id = module.vpc.app_runner_security_group_id
+  task_role_arn     = module.iam.app_runner_task_role_arn
+  execution_role_arn = module.iam.app_runner_execution_role_arn
+  cpu               = "256"
+  memory            = "512"
+  tags              = local.tags
+  user_pool_id      = var.user_pool_id
 }
-
-module "api_gateway" {
-  source = "./modules/api_gateway"
-  rest_api_name     = var.rest_api_name
-  user_pool_arn      = var.user_pool_arn
-  ecs_service_url   = module.ecs.service_url
-  vpc_endpoint_id   = module.vpc.vpc_endpoint_id
-  execute_role_arn  = module.iam.api_gateway_execute_role_arn
-  nlb_arn           = module.ecs.nlb_arn
-}
-
-
-
-
-

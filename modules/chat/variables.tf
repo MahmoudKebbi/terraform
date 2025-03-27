@@ -12,6 +12,10 @@ variable "user_pool_arn"{
   description = "The ID of the Cognito User Pool"
 }
 
+variable "user_pool_id"{
+  description = "The ID of the Cognito User Pool"
+}
+
 variable "repository_name" {
   description = "The name of the ECR repository"
   default     = "equilux-chat-repo"
@@ -65,4 +69,14 @@ variable "dynamodb_gsi2_partition_key" {
 variable "dynamodb_gsi2_sort_key" {
   description = "The sort key of the GSI2"
   default     = "timestamp"
+}
+
+variable "project_name" {
+  description = "The name of the project"
+  default     = "equilux-chat-service"
+}
+
+variable "environment" {
+  description = "The environment to deploy to"
+  default     = "dev"
 }
