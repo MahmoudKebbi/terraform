@@ -146,7 +146,7 @@ The platform includes a complete testing framework:
 
 ## 📄 License
 
-This project is licensed under the [Appropriate License] - see the LICENSE file for details.
+This project is licensed under the MIT License  - see the LICENSE file for details.
 
 ---
 
